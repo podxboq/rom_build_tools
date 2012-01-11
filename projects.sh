@@ -20,6 +20,9 @@ GIT=git
 MAINDIR=android
 XMLFILE=$2
 OLDXMLFILE=`mktemp`
+GREEN="\033[1;32m"
+RED="\033[1;31m"
+COLOROFF="\033[0m"
 
 function getProjectList(){
 	PROJECTLIST=`xmllint --xpath '//project/@path' $TOPDIR/$XMLFILE`
@@ -60,25 +63,30 @@ function getUpstream(){
 function gitPull(){
 	if [ ! -z $mPath ]; then
 		cd $mPath
-		$GIT fetch
-		if $mIsTag; then
-			$GIT checkout $mBranch
-		else
-			$GIT rebase
-		fi
+		$GIT pull origin $mBranch
+		cd $TOPDIR
+	fi
+}
+
+function gitPush(){
+	if [ ! -z $mPath ]; then
+		cd $mPath
+		$GIT push origin $mBranch
 		cd $TOPDIR
 	fi
 }
 
 function gitUpstream(){
-	cd $mPath
-	$GIT pull upstream $mBranch
-	#$GIT rebase origin/$mBranch
-	cd $TOPDIR
+	if [ ! -z $mUpstream ]; then
+		cd $mPath
+		$GIT pull upstream $mBranch
+		#$GIT rebase origin/$mBranch
+		cd $TOPDIR
+	fi
 }
 
 function gitClone(){
-	mkdir -p $mPath
+	echo -e $GREEN"Cloning $mPath"$COLOROFF
 	$GIT clone $mRemoteURL$mName $mPath
 	cd $mPath
 	$GIT checkout $mBranch
@@ -92,7 +100,7 @@ function gitStatus(){
 	cd $mPath
 	STATUS=`$GIT status`
 	if [[ "$STATUS" =~ "Changes" ]] || [[ "$STATUS" =~ "Untracked" ]]; then
-		echo -e "\033[1;32m" $mPath "\033[0m"
+		echo -e $GREEN $mPath $COLOROFF
 		$GIT status
 	fi
 	cd $TOPDIR
@@ -120,17 +128,32 @@ function isSameProject(){
 	return 0
 }
 		
-function init(){
-	cp $XMLFILE $OLDXMLFILE
+function setDefEnv(){
 	DefRemote=`xmllint --xpath 'string(//default/@remote)' $XMLFILE`
-	DefOldRemote=`xmllint --xpath 'string(//default/@remote)' $OLDXMLFILE`
 	DefBranch=`xmllint --xpath 'string(//default/@revision)' $XMLFILE`
 	DefBranch=${DefBranch#"refs/heads/"}
-	setEnv "path=\"$MAINDIR\""
-	gitPull
 }
- 		
-init
+ 	
+function init(){
+	PullActions="sync init fullsync"
+	if [[ -z ${PullActions%%*$1*} ]]; then
+		echo "si"
+		exit 0
+		cp $XMLFILE $OLDXMLFILE
+		setEnv "path=\"$MAINDIR\""
+		gitPull
+		setDefEnv
+		DefOldRemote=`xmllint --xpath 'string(//default/@remote)' $OLDXMLFILE`
+	else
+		echo "no"
+		exit 0
+		DefOldRemote=$DefRemote
+	fi
+	
+}
+ 	
+setDefEnv
+init $1
 
 if [ -z $3 ]; then
 	getProjectList
@@ -141,7 +164,7 @@ fi
 for d in $OLDPROJECTLIST; do
 	if ! [[ $PROJECTLIST =~ $d ]]; then
 		oldpath=`xmllint --xpath 'string(//project[@'$d']/@path)' $OLDXMLFILE`
-		echo -e "Se ha quitado la ruta\033[1;31m $oldpath\033[0m de la lista de proyectos."
+		echo -e "Se ha quitado la ruta$RED$oldpath$COLOROFF de la lista de proyectos."
 		echo "¿Quiere borrarlo (N/s)?"
 		read option
 		if [ "$option" = s ]; then
@@ -160,11 +183,13 @@ for d in $PROJECTLIST; do
 		if [ ! -d $mPath ]; then
 			gitClone
 		fi
+	elif [ "$1" = push ]; then
+			gitPush
 	elif [ "$1" = sync ]; then
-	  	echo -e "\033[1;32m" $mPath "\033[0m"
+	  	echo -e $GREEN $mPath $COLOROFF
 	  	isSameProject $d
 	  	if [ $? -eq 1 ]; then
-			echo -e "Se ha cambiado el servidor del proyecto \033[1;31m $oldpath\033[0m, se borra para clonarlo."
+			echo -e "Se ha cambiado el servidor del proyecto $RED $oldpath$COLOROFF, se borra para clonarlo."
 	  		rm -rf $mPath
 	  	fi
 
@@ -174,7 +199,7 @@ for d in $PROJECTLIST; do
 			gitClone
 		fi
 	elif [ "$1" = fullsync ]; then
-	  	echo -e "\033[1;32m" $mPath "\033[0m"
+	  	echo -e $GREEN $mPath $COLOROFF
 
 		if [ -d $mPath ]; then
 			gitPull

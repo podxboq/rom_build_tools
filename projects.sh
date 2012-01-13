@@ -136,16 +136,12 @@ function setDefEnv(){
 function init(){
 	PullActions="sync init fullsync"
 	if [[ -z ${PullActions%%*$1*} ]]; then
-		echo "si"
-		exit 0
 		cp $XMLFILE $OLDXMLFILE
 		setEnv "path=\"$MAINDIR\""
 		gitPull
 		setDefEnv
 		DefOldRemote=`xmllint --xpath 'string(//default/@remote)' $OLDXMLFILE`
 	else
-		echo "no"
-		exit 0
 		DefOldRemote=$DefRemote
 	fi
 	

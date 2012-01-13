@@ -87,13 +87,12 @@ function gitUpstream(){
 
 function gitClone(){
 	echo -e $GREEN"Cloning $mPath"$COLOROFF
-	$GIT clone $mRemoteURL$mName $mPath
-	cd $mPath
-	$GIT checkout $mBranch
+	$GIT clone $mRemoteURL$mName $mPath -b $mBranch
 	if [ ! -z $mUpstream ]; then
+		cd $mPath
 		$GIT remote add upstream git://$mUpstream.git
+		cd $TOPDIR
 	fi
-	cd $TOPDIR
 }
 
 function gitStatus(){

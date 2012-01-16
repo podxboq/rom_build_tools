@@ -47,23 +47,42 @@ function getRemoteURL(){
 }
 
 function getBranch(){
-	mIsTag=false
 	mBranch=`xmllint --xpath 'string(//project[@'$1']/@revision)' $XMLFILE`
 	if [[ "$mBranch" =~ "refs/tags" ]]; then
     	mBranch=${mBranch#"refs/tags/"}
-    	mIsTag=true
     fi
 	mBranch=${mBranch:=$DefBranch}
 }
 
 function getUpstream(){
-	mUpstream=`xmllint --xpath 'string(//project[@'$1']/@upstream)' $XMLFILE`
+	unset mUpstreamRemote
+	unset mUpstreamName
+	unset mUpstreamBranch
+	total_upstream_list=`xmllint --xpath 'count(//project[@'$1']/upstream)' $XMLFILE`
+	for ((a=1; a <= total_upstream_list ; a++)); do
+		mUpstreamRemote[$a]=`xmllint --xpath 'string(//project[@'$1']/upstream['$a']/@remote)' $XMLFILE`
+		mUpstreamName[$a]=`xmllint --xpath 'string(//project[@'$1']/upstream['$a']/@name)' $XMLFILE`
+		#get project revision
+		mUpstreamBranch[$a]=`xmllint --xpath 'string(//project[@'$1']/upstream['$a']/@revision)' $XMLFILE`
+		#if not, get remote revision
+		if [ -z "${mUpstreamBranch[a]}" ]; then
+			mUpstreamBranch[$a]=`xmllint --xpath 'string(//remote[@name="'${mUpstreamRemote[a]}'"]/@revision)' $XMLFILE`
+		fi
+		#if not, get default revision
+		if [ -z "${mUpstreamBranch[a]}" ]; then
+			mUpstreamBranch[$a]=$DefBranch
+		fi
+	done
 }
 
 function gitPull(){
 	if [ ! -z $mPath ]; then
 		cd $mPath
 		$GIT pull origin $mBranch
+		total_upstream_list=${#mUpstreamRemote[@]}
+		for ((a=1; a <= total_upstream_list ; a++)); do
+			$GIT fetch ${mUpstreamRemote[a]}
+		done
 		cd $TOPDIR
 	fi
 }
@@ -77,22 +96,25 @@ function gitPush(){
 }
 
 function gitUpstream(){
-	if [ ! -z $mUpstream ]; then
-		cd $mPath
-		$GIT pull upstream $mBranch
-		#$GIT rebase origin/$mBranch
-		cd $TOPDIR
-	fi
+	cd $mPath
+	total_upstream_list=${#mUpstreamRemote[@]}
+	for ((a=1; a <= total_upstream_list ; a++)); do
+		$GIT merge ${mUpstreamRemote[a]}/${mUpstreamBranch[a]}
+	done
+	cd $TOPDIR
 }
 
 function gitClone(){
 	echo -e $GREEN"Cloning $mPath"$COLOROFF
 	$GIT clone $mRemoteURL$mName $mPath -b $mBranch
-	if [ ! -z $mUpstream ]; then
+	total_upstream_list=${#mUpstreamRemote[@]}
+	for ((a=1; a <= total_upstream_list ; a++)); do
+		getRemoteURL ${mUpstreamRemote[a]}
 		cd $mPath
-		$GIT remote add upstream git://$mUpstream.git
+		$GIT remote add ${mUpstreamRemote[a]} $mRemoteURL${mUpstreamName[a]}
+		$GIT fetch ${mUpstreamRemote[a]}
 		cd $TOPDIR
-	fi
+	done
 }
 
 function gitStatus(){
@@ -175,9 +197,9 @@ for d in $PROJECTLIST; do
 			gitStatus
 		fi
 	elif [ "$1" = init ]; then
-		if [ ! -d $mPath ]; then
+		#if [ ! -d $mPath ]; then
 			gitClone
-		fi
+		#fi
 	elif [ "$1" = push ]; then
 			gitPush
 	elif [ "$1" = sync ]; then

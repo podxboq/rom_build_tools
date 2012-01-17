@@ -19,11 +19,11 @@ TOPDIR=`pwd`
 GIT=git
 MAINDIR=android
 
-if [ "$1" = sync ]; then
-	touch cambios.txt
+if [ "$1" = *sync ]; then
+	date >> cambios.txt
 fi
 
-$SCRIPTDIR/projects.sh $1 $MAINDIR/default.xml $2
+#$SCRIPTDIR/projects.sh $1 $MAINDIR/default.xml $2
 
 if [ -f $MAINDIR/personal.xml ]; then
 	echo "Procesando proyectos personalizados..."
@@ -34,7 +34,7 @@ if [ "$1" = init ]; then
 	cp build/core/root.mk Makefile
 fi
 
-if [ "$1" = sync ]; then
+if [ "$1" = *sync ]; then
 	echo "Buscando ficheros cambiados..."
 	find . -path './roms' -prune -o -path './out' -prune -o -path '*/.git' -prune -o -path './.repo' -prune -o \! -type d -newer cambios.txt -print >> cambios.txt
 fi

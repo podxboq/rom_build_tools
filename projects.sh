@@ -166,7 +166,6 @@ function init(){
 	else
 		DefOldRemote=$DefRemote
 	fi
-	
 }
  	
 setDefEnv
@@ -197,9 +196,9 @@ for d in $PROJECTLIST; do
 			gitStatus
 		fi
 	elif [ "$1" = init ]; then
-		#if [ ! -d $mPath ]; then
+		if [ ! -d $mPath ]; then
 			gitClone
-		#fi
+		fi
 	elif [ "$1" = push ]; then
 			gitPush
 	elif [ "$1" = sync ]; then

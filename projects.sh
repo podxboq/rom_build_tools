@@ -19,6 +19,7 @@ TOPDIR=`pwd`
 GIT=git
 MAINDIR=android
 XMLFILE=$2
+UPSTREAMFILE=$MAINDIR/upstreams.xml
 OLDXMLFILE=`mktemp`
 GREEN="\033[1;32m"
 RED="\033[1;31m"
@@ -56,19 +57,21 @@ function getBranch(){
 
 function getUpstream(){
 	unset mUpstreamRemote
-	unset mUpstreamName
 	unset mUpstreamBranch
-	total_upstream_list=`xmllint --xpath 'count(//project[@'$1']/upstream)' $XMLFILE`
+	total_upstream_list=`xmllint --xpath 'count(//project[@'$1'])' $UPSTREAMFILE`
 	for ((a=1; a <= total_upstream_list ; a++)); do
-		mUpstreamRemote[$a]=`xmllint --xpath 'string(//project[@'$1']/upstream['$a']/@remote)' $XMLFILE`
-		mUpstreamName[$a]=`xmllint --xpath 'string(//project[@'$1']/upstream['$a']/@name)' $XMLFILE`
+		mUpstreamRemote[$a]=`xmllint --xpath 'string(//project[@'$1' and position()='$a']/@remote)' $UPSTREAMFILE`
 		#get project revision
-		mUpstreamBranch[$a]=`xmllint --xpath 'string(//project[@'$1']/upstream['$a']/@revision)' $XMLFILE`
+		mUpstreamBranch[$a]=`xmllint --xpath 'string(//project[@'$1' and position()='$a']/@revision)' $UPSTREAMFILE`
 		#if not, get remote revision
 		if [ -z "${mUpstreamBranch[a]}" ]; then
-			mUpstreamBranch[$a]=`xmllint --xpath 'string(//remote[@name="'${mUpstreamRemote[a]}'"]/@revision)' $XMLFILE`
+			mUpstreamBranch[$a]=`xmllint --xpath 'string(//remote[@name="'${mUpstreamRemote[a]}'"]/@revision)' $UPSTREAMFILE`
 		fi
 		#if not, get default revision
+		if [ -z "${mUpstreamBranch[a]}" ]; then
+			mUpstreamBranch[$a]=`xmllint --xpath 'string(//default/@revision)' $UPSTREAMFILE`
+		fi
+		#if not, get main default revision
 		if [ -z "${mUpstreamBranch[a]}" ]; then
 			mUpstreamBranch[$a]=$DefBranch
 		fi

@@ -47,6 +47,10 @@ function getRemoteURL(){
 	mRemoteURL=`xmllint --xpath 'string(//remote[@name="'$1'"]/@fetch)' $XMLFILE`
 }
 
+function getRemoteUpstreamURL(){
+	mRemoteURL=`xmllint --xpath 'string(//remote[@name="'$1'"]/@fetch)' $UPSTREAMFILE`
+}
+
 function getBranch(){
 	mBranch=`xmllint --xpath 'string(//project[@'$1']/@revision)' $XMLFILE`
 	if [[ "$mBranch" =~ "refs/tags" ]]; then
@@ -57,10 +61,12 @@ function getBranch(){
 
 function getUpstream(){
 	unset mUpstreamRemote
+	unset mUpstreamName
 	unset mUpstreamBranch
 	total_upstream_list=`xmllint --xpath 'count(//project[@'$1'])' $UPSTREAMFILE`
 	for ((a=1; a <= total_upstream_list ; a++)); do
 		mUpstreamRemote[$a]=`xmllint --xpath 'string(//project[@'$1' and position()='$a']/@remote)' $UPSTREAMFILE`
+		mUpstreamName[$a]=`xmllint --xpath 'string(//project[@'$1' and position()='$a']/@name)' $UPSTREAMFILE`
 		#get project revision
 		mUpstreamBranch[$a]=`xmllint --xpath 'string(//project[@'$1' and position()='$a']/@revision)' $UPSTREAMFILE`
 		#if not, get remote revision
@@ -112,9 +118,9 @@ function gitClone(){
 	$GIT clone $mRemoteURL$mName $mPath -b $mBranch
 	total_upstream_list=${#mUpstreamRemote[@]}
 	for ((a=1; a <= total_upstream_list ; a++)); do
-		getRemoteURL ${mUpstreamRemote[a]}
+		getRemoteUpstreamURL ${mUpstreamRemote[a]}
 		cd $mPath
-		$GIT remote add ${mUpstreamRemote[a]} $mRemoteURL${mUpstreamName[a]}
+		$GIT remote add -t ${mUpstreamBranch[a]} ${mUpstreamRemote[a]} $mRemoteURL${mUpstreamName[a]}
 		$GIT fetch ${mUpstreamRemote[a]}
 		cd $TOPDIR
 	done

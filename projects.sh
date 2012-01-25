@@ -47,7 +47,7 @@ function getRemoteURL(){
 	mRemoteURL=`xmllint --xpath 'string(//remote[@name="'$1'"]/@fetch)' $XMLFILE`
 }
 
-function getUpRemoteURL(){
+function getRemoteUpstreamURL(){
 	mRemoteURL=`xmllint --xpath 'string(//remote[@name="'$1'"]/@fetch)' $UPSTREAMFILE`
 }
 
@@ -127,10 +127,10 @@ function gitClone(){
 	$GIT clone $mRemoteURL$mName $mPath -b $mBranch
 	total_upstream_list=${#mUpstreamRemote[@]}
 	for ((a=1; a <= total_upstream_list ; a++)); do
-		getUpRemoteURL ${mUpstreamRemote[a]}
+		getRemoteUpstreamURL ${mUpstreamRemote[a]}
 		cd $mPath
-		$GIT remote add ${mUpstreamRemote[a]} $mRemoteURL${mUpstreamName[a]}
-		$GIT fetch ${mUpstreamRemote[a]} ${mUpstreamBranch[a]}
+		$GIT remote add -t ${mUpstreamBranch[a]} ${mUpstreamRemote[a]} $mRemoteURL${mUpstreamName[a]}
+		$GIT fetch ${mUpstreamRemote[a]}
 		cd $TOPDIR
 	done
 }

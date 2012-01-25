@@ -19,6 +19,7 @@ TOPDIR=`pwd`
 GIT=git
 MAINDIR=android
 XMLFILE=$2
+UPSTREAMFILE=$MAINDIR/upstreams.xml
 OLDXMLFILE=`mktemp`
 GREEN="\033[1;32m"
 RED="\033[1;31m"
@@ -46,6 +47,10 @@ function getRemoteURL(){
 	mRemoteURL=`xmllint --xpath 'string(//remote[@name="'$1'"]/@fetch)' $XMLFILE`
 }
 
+function getUpRemoteURL(){
+	mRemoteURL=`xmllint --xpath 'string(//remote[@name="'$1'"]/@fetch)' $UPSTREAMFILE`
+}
+
 function getBranch(){
 	mBranch=`xmllint --xpath 'string(//project[@'$1']/@revision)' $XMLFILE`
 	if [[ "$mBranch" =~ "refs/tags" ]]; then
@@ -58,17 +63,30 @@ function getUpstream(){
 	unset mUpstreamRemote
 	unset mUpstreamName
 	unset mUpstreamBranch
-	total_upstream_list=`xmllint --xpath 'count(//project[@'$1']/upstream)' $XMLFILE`
-	for ((a=1; a <= total_upstream_list ; a++)); do
-		mUpstreamRemote[$a]=`xmllint --xpath 'string(//project[@'$1']/upstream['$a']/@remote)' $XMLFILE`
-		mUpstreamName[$a]=`xmllint --xpath 'string(//project[@'$1']/upstream['$a']/@name)' $XMLFILE`
+	total_upstream_list=`xmllint --xpath 'count(//project[@'$1'])' $UPSTREAMFILE`
+	a=1
+	for data in `xmllint --xpath '//project[@'$1']/@remote' $UPSTREAMFILE`; do
+		mUpstreamRemote[$a]=`echo $data | cut -d "\"" -f 2`
+		a=$a+1
+	done
+	a=1
+	for data in `xmllint --xpath '//project[@'$1']/@name' $UPSTREAMFILE`; do
+		mUpstreamName[$a]=`echo $data | cut -d "\"" -f 2`
+		a=$a+1
+	done
+	a=1
+	for data in `xmllint --xpath '//project[@'$1']/@revision' $UPSTREAMFILE`; do
 		#get project revision
-		mUpstreamBranch[$a]=`xmllint --xpath 'string(//project[@'$1']/upstream['$a']/@revision)' $XMLFILE`
+		mUpstreamBranch[$a]=`echo $data | cut -d "\"" -f 2`
 		#if not, get remote revision
 		if [ -z "${mUpstreamBranch[a]}" ]; then
-			mUpstreamBranch[$a]=`xmllint --xpath 'string(//remote[@name="'${mUpstreamRemote[a]}'"]/@revision)' $XMLFILE`
+			mUpstreamBranch[$a]=`xmllint --xpath 'string(//remote[@name="'${mUpstreamRemote[a]}'"]/@revision)' $UPSTREAMFILE`
 		fi
 		#if not, get default revision
+		if [ -z "${mUpstreamBranch[a]}" ]; then
+			mUpstreamBranch[$a]=`xmllint --xpath 'string(//default/@revision)' $UPSTREAMFILE`
+		fi
+		#if not, get main default revision
 		if [ -z "${mUpstreamBranch[a]}" ]; then
 			mUpstreamBranch[$a]=$DefBranch
 		fi
@@ -109,10 +127,10 @@ function gitClone(){
 	$GIT clone $mRemoteURL$mName $mPath -b $mBranch
 	total_upstream_list=${#mUpstreamRemote[@]}
 	for ((a=1; a <= total_upstream_list ; a++)); do
-		getRemoteURL ${mUpstreamRemote[a]}
+		getUpRemoteURL ${mUpstreamRemote[a]}
 		cd $mPath
 		$GIT remote add ${mUpstreamRemote[a]} $mRemoteURL${mUpstreamName[a]}
-		$GIT fetch ${mUpstreamRemote[a]}
+		$GIT fetch ${mUpstreamRemote[a]} ${mUpstreamBranch[a]}
 		cd $TOPDIR
 	done
 }

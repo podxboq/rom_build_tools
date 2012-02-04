@@ -90,6 +90,7 @@ function getUpstream(){
 		if [ -z "${mUpstreamBranch[a]}" ]; then
 			mUpstreamBranch[$a]=$DefBranch
 		fi
+		a=$a+1
 	done
 }
 

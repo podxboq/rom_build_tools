@@ -103,6 +103,7 @@ function gitPull(){
 		total_upstream_list=${#mUpstreamRemote[@]}
 		for ((a=1; a <= total_upstream_list ; a++)); do
 			$GIT fetch ${mUpstreamRemote[a]}
+			$GIT merge ${mUpstreamRemote[a]}/${mUpstreamBranch[a]}
 		done
 		cd $TOPDIR
 	fi

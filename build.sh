@@ -65,7 +65,8 @@ function compilar(){
 }	 
 
 function squishear(){
-	$SCRIPTDIR/squisher
+	SQUISHER=`grep -rh squisher build`
+	$SQUISHER
 	if [ "$?" -eq 0 ]; then
 	    msgOK "Personalización correcta"
 	else

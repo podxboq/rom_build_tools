@@ -63,35 +63,37 @@ function getUpstream(){
 	unset mUpstreamRemote
 	unset mUpstreamName
 	unset mUpstreamBranch
-	total_upstream_list=`xmllint --xpath 'count(//project[@'$1'])' $UPSTREAMFILE`
-	a=1
-	for data in `xmllint --xpath '//project[@'$1']/@remote' $UPSTREAMFILE`; do
-		mUpstreamRemote[$a]=`echo $data | cut -d "\"" -f 2`
-		a=$a+1
-	done
-	a=1
-	for data in `xmllint --xpath '//project[@'$1']/@name' $UPSTREAMFILE`; do
-		mUpstreamName[$a]=`echo $data | cut -d "\"" -f 2`
-		a=$a+1
-	done
-	a=1
-	for data in `xmllint --xpath '//project[@'$1']/@revision' $UPSTREAMFILE`; do
-		#get project revision
-		mUpstreamBranch[$a]=`echo $data | cut -d "\"" -f 2`
-		#if not, get remote revision
-		if [ -z "${mUpstreamBranch[a]}" ]; then
-			mUpstreamBranch[$a]=`xmllint --xpath 'string(//remote[@name="'${mUpstreamRemote[a]}'"]/@revision)' $UPSTREAMFILE`
-		fi
-		#if not, get default revision
-		if [ -z "${mUpstreamBranch[a]}" ]; then
-			mUpstreamBranch[$a]=`xmllint --xpath 'string(//default/@revision)' $UPSTREAMFILE`
-		fi
-		#if not, get main default revision
-		if [ -z "${mUpstreamBranch[a]}" ]; then
-			mUpstreamBranch[$a]=$DefBranch
-		fi
-		a=$a+1
-	done
+	if [ -f $UPSTREAMFILE ]; then
+		total_upstream_list=`xmllint --xpath 'count(//project[@'$1'])' $UPSTREAMFILE`
+		a=1
+		for data in `xmllint --xpath '//project[@'$1']/@remote' $UPSTREAMFILE`; do
+			mUpstreamRemote[$a]=`echo $data | cut -d "\"" -f 2`
+			a=$a+1
+		done
+		a=1
+		for data in `xmllint --xpath '//project[@'$1']/@name' $UPSTREAMFILE`; do
+			mUpstreamName[$a]=`echo $data | cut -d "\"" -f 2`
+			a=$a+1
+		done
+		a=1
+		for data in `xmllint --xpath '//project[@'$1']/@revision' $UPSTREAMFILE`; do
+			#get project revision
+			mUpstreamBranch[$a]=`echo $data | cut -d "\"" -f 2`
+			#if not, get remote revision
+			if [ -z "${mUpstreamBranch[a]}" ]; then
+				mUpstreamBranch[$a]=`xmllint --xpath 'string(//remote[@name="'${mUpstreamRemote[a]}'"]/@revision)' $UPSTREAMFILE`
+			fi
+			#if not, get default revision
+			if [ -z "${mUpstreamBranch[a]}" ]; then
+				mUpstreamBranch[$a]=`xmllint --xpath 'string(//default/@revision)' $UPSTREAMFILE`
+			fi
+			#if not, get main default revision
+			if [ -z "${mUpstreamBranch[a]}" ]; then
+				mUpstreamBranch[$a]=$DefBranch
+			fi
+			a=$a+1
+		done
+	fi
 }
 
 function gitPull(){
@@ -199,8 +201,8 @@ fi
 for d in $OLDPROJECTLIST; do
 	if ! [[ $PROJECTLIST =~ $d ]]; then
 		oldpath=`xmllint --xpath 'string(//project[@'$d']/@path)' $OLDXMLFILE`
-		echo -e "Se ha quitado la ruta$RED$oldpath$COLOROFF de la lista de proyectos."
-		echo "¿Quiere borrarlo (N/s)?"
+		echo -e "Se ha quitado la ruta $RED$oldpath$COLOROFF de la lista de proyectos."
+		echo "¿Quiere borrarlo (s/N)?"
 		read option
 		if [ "$option" = s ]; then
 			rm -rf $oldpath
@@ -224,7 +226,7 @@ for d in $PROJECTLIST; do
 	  	echo -e $GREEN $mPath $COLOROFF
 	  	isSameProject $d
 	  	if [ $? -eq 1 ]; then
-			echo -e "Se ha cambiado el servidor del proyecto $RED $oldpath$COLOROFF, se borra para clonarlo."
+			echo -e "Se ha cambiado el servidor del proyecto $RED $mPath$COLOROFF, se borra para clonarlo."
 	  		rm -rf $mPath
 	  	fi
 

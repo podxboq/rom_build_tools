@@ -18,7 +18,9 @@
 #Inicializamos las variables
 SCRIPTDIR=`dirname $0`
 TOPDIR=`pwd`
-SUBDEVICE=`grep -G ^PRODUCT_SUBDEVICE $TOPDIR/vendor/SuperTeam/products/team_$1.mk`
+MAINFILE=team_$1.mk
+MAINPATH=`find device -name $MAINFILE`
+SUBDEVICE=`grep -G ^PRODUCT_SUBDEVICE $TOPDIR/$MAINPATH/$MAINFILE`
 if [ -n $SUBDEVICE ]; then
 	DEVICE=$1
 else
@@ -32,15 +34,17 @@ PUBLICDIR=$ROMDIR/last_public
 CONFIGFILE=$HOME/.SuperOSR.conf
 
 #Buscamos valores personalizados para el build
-CORES=$( grep CORES $CONFIGFILE | cut -f 2 -d "=" )
-if [ -z "$CORES" ]; then
-	CORES=$( cat /proc/cpuinfo | grep -c processor )
-fi
-USE_CCACHE=$( grep USE_CCACHE $CONFIGFILE | cut -f 2 -d "=" )
-if [ -n "$USE_CCACHE" ] && [ "$USE_CCACHE" = "1" ]; then
-	export USE_CCACHE=1
-else
-	unset USE_CCACHE
+if [ -f $CONFIGFILE ]; then
+	CORES=$( grep CORES $CONFIGFILE | cut -f 2 -d "=" )
+	if [ -z "$CORES" ]; then
+		CORES=$( cat /proc/cpuinfo | grep -c processor )
+	fi
+	USE_CCACHE=$( grep USE_CCACHE $CONFIGFILE | cut -f 2 -d "=" )
+	if [ -n "$USE_CCACHE" ] && [ "$USE_CCACHE" = "1" ]; then
+		export USE_CCACHE=1
+	else
+		unset USE_CCACHE
+	fi
 fi
 
 . $SCRIPTDIR/mensajes.sh
@@ -50,8 +54,6 @@ then
 	msgErr >&2 "Usage: $0 <device>"
 	exit 1
 fi
-	
-$SCRIPTDIR/preparasource.sh $DEVICE
 
 function compilar(){
     make -j${CORES} otapackage

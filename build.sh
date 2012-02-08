@@ -18,9 +18,8 @@
 #Inicializamos las variables
 SCRIPTDIR=`dirname $0`
 TOPDIR=`pwd`
-MAINFILE=team_$1.mk
-MAINPATH=`find device -name $MAINFILE`
-SUBDEVICE=`grep -G ^PRODUCT_SUBDEVICE $TOPDIR/$MAINPATH/$MAINFILE`
+MAINFILE=`find device -name team_$1.mk`
+SUBDEVICE=`grep -G ^PRODUCT_SUBDEVICE $MAINFILE`
 if [ -n $SUBDEVICE ]; then
 	DEVICE=$1
 else

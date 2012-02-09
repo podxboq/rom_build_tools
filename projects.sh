@@ -159,13 +159,8 @@ function setEnv(){
 }
 
 function isSameProject(){
-	oldRemote=`xmllint --xpath 'string(//project[@'$1']/@remote)' $OLDXMLFILE`
-	oldRemote=${oldRemote:=$DefOldRemote}
-	if [ ! $oldRemote = $mRemote ]; then
-		return 1
-	fi
-	oldName=`xmllint --xpath 'string(//project[@'$1']/@name)' $OLDXMLFILE`
-		if [ ! $oldName = $mName ]; then
+	oldRemote=`$GIT config --get remote.origin.url`
+	if [ ! $oldRemote = $mRemote/$nName ]; then
 		return 1
 	fi
 	return 0

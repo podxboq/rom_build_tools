@@ -53,6 +53,9 @@ function getRemoteUpstreamURL(){
 
 function getBranch(){
 	mBranch=`xmllint --xpath 'string(//project[@'$1']/@revision)' $XMLFILE`
+	if [ -z $mBranch ]; then
+		mBranch=`xmllint --xpath 'string(//remote[@name="'$mRemote'"]/@revision)' $XMLFILE`
+	fi
 	if [[ "$mBranch" =~ "refs/tags" ]]; then
     	mBranch=${mBranch#"refs/tags/"}
     fi
@@ -159,8 +162,10 @@ function setEnv(){
 }
 
 function isSameProject(){
+	cd $mPath
 	oldRemote=`$GIT config --get remote.origin.url`
-	if [ ! $oldRemote = $mRemote/$nName ]; then
+	cd $TOPDIR
+	if [ ! $oldRemote = $mRemoteURL$mName ]; then
 		return 1
 	fi
 	return 0
@@ -179,9 +184,6 @@ function init(){
 		setEnv "path=\"$MAINDIR\""
 		gitPull
 		setDefEnv
-		DefOldRemote=`xmllint --xpath 'string(//default/@remote)' $OLDXMLFILE`
-	else
-		DefOldRemote=$DefRemote
 	fi
 }
  	
@@ -222,7 +224,7 @@ for d in $PROJECTLIST; do
 	  	echo -e $GREEN $mPath $COLOROFF
 	  	isSameProject $d
 	  	if [ $? -eq 1 ]; then
-			echo -e "Se ha cambiado el servidor del proyecto $RED $mPath$COLOROFF, se borra para clonarlo."
+			echo -e "Se ha cambiado el servidor del proyecto $RED$mPath$COLOROFF, se borra para clonarlo."
 	  		rm -rf $mPath
 	  	fi
 

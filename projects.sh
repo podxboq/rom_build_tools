@@ -56,8 +56,10 @@ function getBranch(){
 	if [ -z $mBranch ]; then
 		mBranch=`xmllint --xpath 'string(//remote[@name="'$mRemote'"]/@revision)' $XMLFILE`
 	fi
+	mTag=false
 	if [[ "$mBranch" =~ "refs/tags" ]]; then
     	mBranch=${mBranch#"refs/tags/"}
+    	mTag=true
     fi
 	mBranch=${mBranch:=$DefBranch}
 }
@@ -131,7 +133,14 @@ function gitUpstream(){
 
 function gitClone(){
 	echo -e $GREEN"Cloning $mPath"$COLOROFF
-	$GIT clone $mRemoteURL$mName $mPath -b $mBranch
+	if $mTag; then
+		$GIT clone $mRemoteURL$mName $mPath
+		cd $mPath 
+		$GIT checkout $mBranch
+		cd $TOPDIR
+	else
+		$GIT clone $mRemoteURL$mName $mPath -b $mBranch
+	fi
 	total_upstream_list=${#mUpstreamRemote[@]}
 	for ((a=1; a <= total_upstream_list ; a++)); do
 		getRemoteUpstreamURL ${mUpstreamRemote[a]}

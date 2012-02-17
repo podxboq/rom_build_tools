@@ -121,6 +121,7 @@ do
     echo " 6: limpiar build"
     echo " 7: Reiniciar dispositivo"
     echo " 8: Compilar kernel"
+    echo " 9: Cambiar boot"
     echo "99: salir"
 
     read option
@@ -170,6 +171,8 @@ do
     	8)	
     		$SCRIPTDIR/kernel.sh $DEVICE
     		;;
+    	9)
+    		fastboot flash boot $OUT/boot.img
     esac    
 done
 	

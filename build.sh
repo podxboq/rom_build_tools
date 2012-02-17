@@ -85,6 +85,15 @@ function sincronizar(){
 	fi
 }
 
+function makeClean(){
+	echo "¿Estás seguro que quieres empezar de cero? (s/N)"
+	read option
+	option=${option:="N"}
+	if [ "$option" = "s" ] || [ "$option" = "S" ]; then
+		echo "make clean"
+	fi
+}
+
 function parchear(){
 	if [ ! -d $PUBLICDIR ]; then
 		msgWarn "No existe un directorio con la versión actualmente publicada. Se crea uno nuevo. La propia ROM es el parche."
@@ -153,7 +162,7 @@ do
 			fi
 			;;
     	6)
-    		make clean
+    		makeClean
     		;;
     	7)
     		adb reboot

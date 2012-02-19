@@ -65,7 +65,7 @@ function compilar(){
 }	 
 
 function squishear(){
-	SQUISHER=`grep -rh squisher build`
+	SQUISHER=`find vendor -name squisher*`
 	$SQUISHER
 	if [ "$?" -eq 0 ]; then
 	    msgOK "Personalización correcta"
@@ -75,6 +75,27 @@ function squishear(){
 	fi
 }
 
+function reiniciar(){
+	echo "1: Normal"
+	echo "2: Recovery"
+	echo "3: HBoot"
+	echo "4: Apagar"
+	read option
+	if [ ! -z $option ]
+	then
+		case $option in
+			1) adb reboot
+			;;
+			2) adb reboot recovery
+			;;
+			3) adb reboot bootloader
+			;;
+			4) adb shell halt
+			
+		esac
+	fi
+}
+	
 function sincronizar(){
    	$SCRIPTDIR/sincronizar.sh $ROMDIR $DEVICE
 	if [ "$?" -eq 0 ]; then
@@ -119,7 +140,7 @@ do
     echo " 4: crear parche"
     echo " 5: make + squisher + sincronizar"
     echo " 6: limpiar build"
-    echo " 7: Reiniciar dispositivo"
+    echo " 7: Reiniciar/Apagar dispositivo"
     echo " 8: Compilar kernel"
     echo " 9: Cambiar boot"
     echo "99: salir"
@@ -166,7 +187,7 @@ do
     		makeClean
     		;;
     	7)
-    		adb reboot
+    		reiniciar
     		;;
     	8)	
     		$SCRIPTDIR/kernel.sh $DEVICE

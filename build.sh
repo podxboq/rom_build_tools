@@ -55,6 +55,8 @@ then
 fi
 
 function compilar(){
+	#borramos los objetos para forzar que se copie la ROM entera
+	rm -r $OUT/recovery $OUT/root $OUT/system $OUT/kernel
     make -j${CORES} otapackage
 	if [ "$?" -eq 0 ]; then
 	    msgOK "Compilación correcta"

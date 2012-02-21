@@ -19,7 +19,7 @@ DEVICE=$2
 
 mkdir -p device/$MANUFACTURER/$DEVICE
 
-(cat << EOF) | sed s/__DEVICE__/$DEVICE/g > device/$MANUFACTURER/$DEVICE/envsetup.sh
+(cat << EOF) | sed s/__DEVICE__/$DEVICE/g > device/$MANUFACTURER/$DEVICE/vendorsetup.sh
 # Copyright (C) 2012 The SuperTeam Developer Group
 #
 # Licensed under the Apache License, Version 2.0 (the "License");

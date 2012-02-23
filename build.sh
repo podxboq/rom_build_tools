@@ -18,7 +18,22 @@
 #Inicializamos las variables
 SCRIPTDIR=`dirname $0`
 TOPDIR=`pwd`
+. $SCRIPTDIR/mensajes.sh
+
+if [ $# -lt 1 ]
+then
+	msgErr "Usage: $0 <device>"
+	exit 1
+fi
+
 MAINFILE=`find device -name team_$1.mk`
+
+if [ -z $MAINFILE ]
+then
+	msgErr "No se ha encontrado el dispositivo $1"
+	exit 1
+fi
+
 SUBDEVICE=`grep -G ^PRODUCT_SUBDEVICE $MAINFILE`
 if [ -n $SUBDEVICE ]; then
 	DEVICE=$1
@@ -44,14 +59,6 @@ if [ -f $CONFIGFILE ]; then
 	else
 		unset USE_CCACHE
 	fi
-fi
-
-. $SCRIPTDIR/mensajes.sh
-
-if [ $# -lt 1 ]
-then
-	msgErr >&2 "Usage: $0 <device>"
-	exit 1
 fi
 
 function compilar(){
@@ -135,6 +142,7 @@ function parchear(){
 while true
 do
     #inicializamos estados
+	msgStatus "Compilando la rom del SuperTeam para el dispositivo $1"
     echo "Elige una opción:"
     echo " 1: make"
     echo " 2: squisher"

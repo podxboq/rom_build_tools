@@ -139,6 +139,7 @@ function parchear(){
 		$SCRIPTDIR/updater.sh $DEVICE
 	fi
 }
+
 while true
 do
     #inicializamos estados

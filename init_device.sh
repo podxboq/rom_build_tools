@@ -38,7 +38,7 @@ add_lunch_combo team___DEVICE__-eng
 
 EOF
 
-(cat << EOF) | sed s/__DEVICE__/$DEVICE/g > device/$MANUFACTURER/$DEVICE/AndroidBoard.mk
+(cat << EOF) | sed s/__DEVICE__/$DEVICE/g > device/$MANUFACTURER/$DEVICE/AndroidProducts.mk
 # Copyright (C) 2012 The SuperTeam Developer Group
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -74,6 +74,8 @@ EOF
 # limitations under the License.
 
 \$(call inherit-product, device/__MANUFACTURER__/__DEVICE__/__DEVICE__.mk)
+
+PRODUCT_NAME := team___DEVICE__
 
 EOF
 

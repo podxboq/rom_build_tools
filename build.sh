@@ -113,7 +113,7 @@ function makeClean(){
 	read option
 	option=${option:="N"}
 	if [ "$option" = "s" ] || [ "$option" = "S" ]; then
-		echo "make clean"
+		make clean
 	fi
 }
 

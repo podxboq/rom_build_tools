@@ -18,30 +18,18 @@
 #Inicializamos las variables
 SCRIPTDIR=`dirname $0`
 ROMDIR=$1
-BUILDDIR=$ROMDIR/last_build
 RELEASEDIR=$ROMDIR/last_release
 PATCHDIR=$ROMDIR/last_patch
 PUBLICDIR=$ROMDIR/last_public
-DEVICE=$2
 
 . $SCRIPTDIR/mensajes.sh
 
-if [ -d $BUILDDIR ]; then
-	rm -r $BUILDDIR
-fi
-    	
-mkdir -p $BUILDDIR
-for f in `ls $OUT/SuperOSR-ST*.zip`; do
-	msgStatus "Descomprimiendo $f"
-    unzip -qd $BUILDDIR/ $f
-done  
-		
 if [ ! -d $RELEASEDIR ]; then
 	msgErr "No existe el directorio $RELEASEDIR, se mueve la versión build y se obvia la gestión de cambios"
-	mv $BUILDDIR $RELEASEDIR
+	mv $OUT/system $RELEASEDIR
 else
 	msgStatus "Calculando las diferencias con la anterior versión compilada"
-	$SCRIPTDIR/sacadiff.sh $BUILDDIR/system $RELEASEDIR/system $ROMDIR/diff.txt
+	$SCRIPTDIR/sacadiff.sh $OUT/system $RELEASEDIR/system $ROMDIR/diff.txt
 	cat $ROMDIR/diff.txt
 	        
 	#actualizamos el directorio de la última release
@@ -50,7 +38,7 @@ else
 	
 	case $sync in
 		[sS] )
-			$SCRIPTDIR/fromdiff.sh $ROMDIR/diff.txt $RELEASEDIR release
+			$SCRIPTDIR/fromdiff.sh $ROMDIR/diff.txt $OUT/system $RELEASEDIR/system
 	esac
 		    
 	#actualizamos el dispositivo
@@ -59,7 +47,7 @@ else
 	
 	case $sync in
 		[sS] )
-			$SCRIPTDIR/fromdiff.sh $ROMDIR/diff.txt $DEVICE release
+			$SCRIPTDIR/fromdiff.sh $ROMDIR/diff.txt $OUT/system $RELEASEDIR/system true
 	esac
 fi
     

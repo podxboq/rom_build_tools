@@ -18,12 +18,6 @@
 #Inicializamos las variables
 #!/bin/bash
 
-isDIR=false
-BUILDMASK=last_build
-RELEASEMASK=last_release
-PATCHMASK=last_patch
-PUBLICMASK=last_public
-
 SCRIPTDIR=`dirname $0`
 . $SCRIPTDIR/mensajes.sh
 
@@ -34,20 +28,27 @@ then
 fi
 
 DIFFFILE=$1
-DEST=$2
-ENV=$3
+ORIG=$2
+DEST=$3
+DEVICE=$4
+if [ -z $DEVICE ]
+then
+	DEVICE=false
+fi
+
+if $DEVICE
+then
+	preDir=system
+fi
+
 mLANG=`echo $LANG | cut -f 2 -d "=" | cut -f 1 -d "."`
 
 if [ $mLANG = "es_ES" ]; then
-	mONLY="Sólo"
-	mONLYIN="Sólo en "
-	mAND=" y"
+	mONLY="Sólo "
 	mFILES="Archivos "
 else
-	mONLY="Only"
-	mONLYIN="Only in "
-	mAND=" and"
-	mFILES="Files"
+	mONLY="Only "
+	mFILES="Files "
 fi
 
 if [ ! -f $DIFFFILE ]
@@ -56,96 +57,74 @@ then
     exit 1
 fi
 
-#comprobamos si el segundo parámetro es un directorio o el dispositivo
-#se diferencia en que el dispositivo no puede llevar el caracter /
-if [[ "$DEST" =~ "/" ]]; then
-	isDIR=true
-fi
-
-if $isDIR && [ ! -d $DEST ]
+if ! $DEVICE && [ ! -d $DEST ]
 then
     msgErr >&2 "El directorio $DEST no existe"
     exit 1
 fi
 
-if [ "$ENV" == "release" ]
-then
-	MASK=$RELEASEMASK
-else
-    MASK=$PATCHMASK
-fi
-
 #borramos los ficheros que no están y copiamos los cambiados.
 
-if ! $isDIR
+if $DEVICE
 then
 	adb remount
 fi
 
 while read line; do
-    if [[ "$line" =~ "$BUILDMASK" ]]; then
-		if [[ "$line" =~ "$mONLY" ]]; then
-            base=${line#*$mONLYIN*}
-            file=${base/: //}
-		else
-            base=${line%*$mAND*}
-            file=${base#*$mFILES*}
-		fi
-        accion=copiar
+    if [[ "$line" =~ "$mFILES" ]]
+    then
+		accion=copiar
+		prefile=${line#*$ORIG*}
     else
-        base=${line#*$mONLYIN*}
-        file=${base/: //}
-        accion=borrar
+    	if [[ "$line" =~ "$DEST" ]]
+    	then
+        	accion=borrar
+        	prefile=${line#*$DEST*}
+			prefile=${prefile/: //}
+        else
+        	accion=copiar
+        	prefile=${line#*$ORIG*}
+			prefile=${prefile/: //}
+        fi
     fi
     
-    if [[ $accion == "copiar" ]]; then
-    	FINALDIR=${file/build/$ENV}
-    	if [ ! -d $file ]; then
-    	   FINALDIR=${FINALDIR%*/*}
-    	fi
-    	if [ ! -d $FINALDIR ]; then
-    		mkdir -p $FINALDIR
+	file=`echo $prefile | cut -d " " -f 1`
+        
+    if [[ $accion == "copiar" ]]
+    then
+    	if [ -d $ORIG$file ] && [ ! -d $DEST$file ]
+    	then
+    		mkdir -p $DEST$file
     	fi
 
-        if $isDIR
+        if $DEVICE
         then
-        	if [ -d $file ]
-        	then
-                cp -rv $file/* ${file/build/$ENV}
-        	else
-                cp -v $file ${file/build/$ENV}
-            fi
-        else
-            adb push $file .${file#*$BUILDMASK*}
-			if [[ "$file" =~ "/bin/" ]]
+            adb push $ORIG$file $preDir$file
+			if [[ "$file" =~ "/bin/" ]] || [[ "$file" =~ "/xbin/" ]]
 			then
-				adb shell chmod 755 .${file#*$BUILDMASK*}
+				adb shell chmod 755 $preDir$file
 			fi
+        else
+            cp -rv $ORIG$file $DEST$file
         fi
     fi
 
-    if [[ $accion == "borrar" ]]; then
-    	if [[ $ENV == "patch" ]]; then
-    		if [ -d $file ]; then
-    			echo "rm -r ${file#*$PUBLICMASK*}" >> $DEST/rm.sh
-    		else
-    			echo "rm ${file#*$PUBLICMASK*}" >> $DEST/rm.sh
-    		fi
-    	else
-	        msgWarn "borrando $file"
-	        if $isDIR
-	        then
-	        	rm -r $file
-	        else
-	            adb shell rm -r .${file#*$MASK*}
-	        fi
+    if [[ $accion == "borrar" ]]
+    then
+        if $DEVICE
+        then
+        	msgWarn "borrando $preDir$file"
+            adb shell rm -r $preDir$file
+        else
+        	msgWarn "borrando $DEST$file"
+        	rm -r $DEST$file
     	fi
     fi
 done < $DIFFFILE
 
-if ! $isDIR
+if $DEVICE
 then
     adb remount
 fi
 	
-exit 0	
+exit 0

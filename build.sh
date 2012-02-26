@@ -106,7 +106,7 @@ function reiniciar(){
 }
 	
 function sincronizar(){
-   	$SCRIPTDIR/sincronizar.sh $ROMDIR $DEVICE
+   	$SCRIPTDIR/sincronizar.sh $ROMDIR
 	if [ "$?" -eq 0 ]; then
 	    msgOK "Sincronización correcta"
 	else

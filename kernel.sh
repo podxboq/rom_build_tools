@@ -39,3 +39,4 @@ make menuconfig CC="ccache arm-eabi-gcc" -C $KERNELDIR O=$OUT/obj/kernel \
 
 cp -fv $OUT/obj/kernel/.config $KERNELCFG
 cp -fv $OUT/obj/kernel/arch/arm/boot/zImage $KERNELIMG
+find $OUT/obj/kernel/ -name *.ko -exec cp -v {} $DEVICEDIR \;

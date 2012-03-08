@@ -21,6 +21,7 @@ MAINDIR=android
 XMLFILE=$2
 UPSTREAMFILE=$MAINDIR/upstreams.xml
 PERSONALFILE=$MAINDIR/personal.xml
+BLACKFILE=$MAINDIR/black.xml
 OLDXMLFILE=`mktemp`
 GREEN="\033[1;32m"
 RED="\033[1;31m"
@@ -138,7 +139,8 @@ function gitUpstream(){
 
 function gitClone(){
 	isPersonalProject $mPath
-	if [ $? -eq 0 ]; then
+	if [ $? -eq 0 ]
+	then
 		return 0
 	fi
 	echo -e $GREEN"Cloning........."$COLOROFF
@@ -200,6 +202,17 @@ function isPersonalProject(){
 	return 1
 }
 
+function isBlackProject(){
+	if [ -f $BLACKFILE ]
+	then
+		if [ `xmllint --xpath 'count(//project[@path="'$1'"])' $BLACKFILE` -gt 0 ]
+		then
+			return 0
+		fi
+	fi
+	return 1
+}
+
 function setDefEnv(){
 	DefRemote=`xmllint --xpath 'string(//default/@remote)' $XMLFILE`
 	DefBranch=`xmllint --xpath 'string(//default/@revision)' $XMLFILE`
@@ -239,6 +252,12 @@ done
 
 for d in $PROJECTLIST; do
 	setEnv $d
+	isBlackProject $mPath
+	if [ $? -eq 0 ]
+	then
+		continue
+	fi
+
 	if [ "$1" = status ]; then
 		if [ -d $mPath ]; then
 			gitStatus

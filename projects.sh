@@ -141,7 +141,7 @@ function gitClone(){
 	if [ $? -eq 0 ]; then
 		return 0
 	fi
-	echo -e $GREEN"Cloning $mPath"$COLOROFF
+	echo -e $GREEN"Cloning........."$COLOROFF
 	if $mTag; then
 		$GIT clone $mRemoteURL$mName $mPath
 		cd $mPath 
@@ -164,7 +164,6 @@ function gitStatus(){
 	cd $mPath
 	STATUS=`$GIT status`
 	if [[ "$STATUS" =~ "Changes" ]] || [[ "$STATUS" =~ "Untracked" ]]; then
-		echo -e $GREEN $mPath $COLOROFF
 		$GIT status
 	fi
 	cd $TOPDIR
@@ -177,6 +176,7 @@ function setEnv(){
 	getRemoteURL $mRemote
 	getName $1
 	getUpstream $1
+	echo -e $GREEN$mPath $COLOROFF
 }
 
 function isSameProject(){
@@ -190,7 +190,6 @@ function isSameProject(){
 }
 		
 function isPersonalProject(){
-	echo $1
 	if [ -f $PERSONALFILE ] && ! [ $PERSONALFILE = $XMLFILE ] 
 	then
 		if [ `xmllint --xpath 'count(//project[@path="'$1'"])' $PERSONALFILE` -gt 0 ]
@@ -251,21 +250,21 @@ for d in $PROJECTLIST; do
 	elif [ "$1" = push ]; then
 			gitPush
 	elif [ "$1" = sync ]; then
-	  	echo -e $GREEN $mPath $COLOROFF
-	  	isSameProject $d
-	  	if [ $? -eq 1 ]; then
-			echo -e "Se ha cambiado el servidor del proyecto $RED$mPath$COLOROFF, se borra para clonarlo."
-	  		rm -rf $mPath
-	  	fi
-
-		if [ -d $mPath ]; then
-			gitPull
+	  	if [ ! -d $mPath ] 
+	  	then
+	  		gitClone
 		else
-			gitClone
+	  		isSameProject $d
+		  	if [ $? -eq 1 ]
+		  	then
+				echo -e "Se ha cambiado el servidor del proyecto $RED$mPath$COLOROFF, se borra para clonarlo."
+		  		rm -rf $mPath
+				gitClone
+			else
+				gitPull
+		  	fi
 		fi
 	elif [ "$1" = fullsync ]; then
-	  	echo -e $GREEN $mPath $COLOROFF
-
 		if [ -d $mPath ]; then
 			gitPull
 			gitUpstream

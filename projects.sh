@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2011 The Superteam Development Group
+# Copyright (C) 2011, 2012 The Superteam Development Group
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ GIT=git
 MAINDIR=android
 XMLFILE=$2
 UPSTREAMFILE=$MAINDIR/upstreams.xml
+PERSONALFILE=$MAINDIR/personal.xml
 OLDXMLFILE=`mktemp`
 GREEN="\033[1;32m"
 RED="\033[1;31m"
@@ -102,6 +103,10 @@ function getUpstream(){
 }
 
 function gitPull(){
+	isPersonalProject $mPath
+	if [ $? -eq 0 ]; then
+		return 0
+	fi
 	if [ ! -z $mPath ]; then
 		cd $mPath
 		$GIT pull origin $mBranch
@@ -132,6 +137,10 @@ function gitUpstream(){
 }
 
 function gitClone(){
+	isPersonalProject $mPath
+	if [ $? -eq 0 ]; then
+		return 0
+	fi
 	echo -e $GREEN"Cloning $mPath"$COLOROFF
 	if $mTag; then
 		$GIT clone $mRemoteURL$mName $mPath
@@ -180,6 +189,18 @@ function isSameProject(){
 	return 0
 }
 		
+function isPersonalProject(){
+	echo $1
+	if [ -f $PERSONALFILE ] && ! [ $PERSONALFILE = $XMLFILE ] 
+	then
+		if [ `xmllint --xpath 'count(//project[@path="'$1'"])' $PERSONALFILE` -gt 0 ]
+		then
+			return 0
+		fi
+	fi
+	return 1
+}
+
 function setDefEnv(){
 	DefRemote=`xmllint --xpath 'string(//default/@remote)' $XMLFILE`
 	DefBranch=`xmllint --xpath 'string(//default/@revision)' $XMLFILE`

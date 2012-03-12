@@ -104,10 +104,6 @@ function getUpstream(){
 }
 
 function gitPull(){
-	isPersonalProject $mPath
-	if [ $? -eq 0 ]; then
-		return 0
-	fi
 	if [ ! -z $mPath ]; then
 		cd $mPath
 		$GIT pull origin $mBranch
@@ -138,11 +134,6 @@ function gitUpstream(){
 }
 
 function gitClone(){
-	isPersonalProject $mPath
-	if [ $? -eq 0 ]
-	then
-		return 0
-	fi
 	echo -e $GREEN"Cloning........."$COLOROFF
 	if $mTag; then
 		$GIT clone $mRemoteURL$mName $mPath
@@ -254,6 +245,12 @@ done
 for d in $PROJECTLIST; do
 	setEnv $d
 	isBlackProject $mPath
+	if [ $? -eq 0 ]
+	then
+		continue
+	fi
+
+	isPersonalProject $mPath
 	if [ $? -eq 0 ]
 	then
 		continue

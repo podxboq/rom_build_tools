@@ -277,9 +277,13 @@ for d in $PROJECTLIST; do
 	  		isSameProject $d
 		  	if [ $? -eq 1 ]
 		  	then
-				echo -e "Se ha cambiado el servidor del proyecto $RED$mPath$COLOROFF, se borra para clonarlo."
-		  		rm -rf $mPath
-				gitClone
+				echo -e "Se ha cambiado el servidor del proyecto $RED$mPath$COLOROFF, ¿desea borrarlo para clonarlo (S/n)?"
+				read option
+				if [ -z $option ] || [ "$option" = "s" ]
+				then
+		  			rm -rf $mPath
+					gitClone
+				fi
 			else
 				gitPull
 		  	fi

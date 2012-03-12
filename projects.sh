@@ -147,6 +147,7 @@ function gitClone(){
 	if $mTag; then
 		$GIT clone $mRemoteURL$mName $mPath
 		cd $mPath 
+		$GIT fetch --tags
 		$GIT checkout $mBranch
 		cd $TOPDIR
 	else

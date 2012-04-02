@@ -26,6 +26,7 @@ PUBLICDIR=$ROMDIR/last_public
 
 if [ ! -d $RELEASEDIR ]; then
 	msgErr "No existe el directorio $RELEASEDIR, se mueve la versión build y se obvia la gestión de cambios"
+	mkdir -p $RELEASEDIR
 	mv $OUT/system $RELEASEDIR
 else
 	msgStatus "Calculando las diferencias con la anterior versión compilada"

@@ -22,6 +22,7 @@ XMLFILE=$2
 UPSTREAMFILE=$MAINDIR/fork.xml
 PERSONALFILE=$MAINDIR/personal.xml
 BLACKFILE=$MAINDIR/black.xml
+REMOTEFILE=$MAINDIR/remotes.xml
 OLDXMLFILE=`mktemp`
 GREEN="\033[1;32m"
 RED="\033[1;31m"
@@ -46,17 +47,13 @@ function getRemote(){
 }
 
 function getRemoteURL(){
-	mRemoteURL=`xmllint --xpath 'string(//remote[@name="'$1'"]/@fetch)' $XMLFILE`
-}
-
-function getRemoteUpstreamURL(){
-	mRemoteURL=`xmllint --xpath 'string(//remote[@name="'$1'"]/@fetch)' $UPSTREAMFILE`
+	mRemoteURL=`xmllint --xpath 'string(//remote[@name="'$1'"]/@fetch)' $REMOTEFILE`
 }
 
 function getBranch(){
 	mBranch=`xmllint --xpath 'string(//project[@'$1']/@revision)' $XMLFILE`
 	if [ -z $mBranch ]; then
-		mBranch=`xmllint --xpath 'string(//remote[@name="'$mRemote'"]/@revision)' $XMLFILE`
+		mBranch=`xmllint --xpath 'string(//remote[@name="'$mRemote'"]/@revision)' $REMOTEFILE`
 	fi
 	mTag=false
 	if [[ "$mBranch" =~ "refs/tags" ]]; then
@@ -72,33 +69,23 @@ function getUpstream(){
 	unset mUpstreamBranch
 	if [ -f $UPSTREAMFILE ]; then
 		total_upstream_list=`xmllint --xpath 'count(//project[@'$1'])' $UPSTREAMFILE`
-		a=1
-		for data in `xmllint --xpath '//project[@'$1']/@remote' $UPSTREAMFILE`; do
-			mUpstreamRemote[$a]=`echo $data | cut -d "\"" -f 2`
-			a=$a+1
-		done
-		a=1
-		for data in `xmllint --xpath '//project[@'$1']/@name' $UPSTREAMFILE`; do
-			mUpstreamName[$a]=`echo $data | cut -d "\"" -f 2`
-			a=$a+1
-		done
-		a=1
-		for data in `xmllint --xpath '//project[@'$1']/@revision' $UPSTREAMFILE`; do
+		for n in `seq 1 $total_upstream_list`
+		do
+			data=`xmllint --xpath '//project[@'$1'][position()='$n']/@remote' $UPSTREAMFILE`
+			mUpstreamRemote[$n]=`echo $data | cut -d "\"" -f 2`
+			data=`xmllint --xpath '//project[@'$1'][position()='$n']/@name' $UPSTREAMFILE`
+			mUpstreamName[$n]=`echo $data | cut -d "\"" -f 2`
+			data=`xmllint --xpath '//project[@'$1'][position()='$n']/@revision' $UPSTREAMFILE`
 			#get project revision
-			mUpstreamBranch[$a]=`echo $data | cut -d "\"" -f 2`
+			mUpstreamBranch[$n]=`echo $data | cut -d "\"" -f 2`
 			#if not, get remote revision
 			if [ -z "${mUpstreamBranch[a]}" ]; then
-				mUpstreamBranch[$a]=`xmllint --xpath 'string(//remote[@name="'${mUpstreamRemote[a]}'"]/@revision)' $UPSTREAMFILE`
-			fi
-			#if not, get default revision
-			if [ -z "${mUpstreamBranch[a]}" ]; then
-				mUpstreamBranch[$a]=`xmllint --xpath 'string(//default/@revision)' $UPSTREAMFILE`
+				mUpstreamBranch[$n]=`xmllint --xpath 'string(//remote[@name="'${mUpstreamRemote[n]}'"]/@revision)' $REMOTEFILE`
 			fi
 			#if not, get main default revision
-			if [ -z "${mUpstreamBranch[a]}" ]; then
-				mUpstreamBranch[$a]=$DefBranch
+			if [ -z "${mUpstreamBranch[n]}" ]; then
+				mUpstreamBranch[$n]=$DefBranch
 			fi
-			a=$a+1
 		done
 	fi
 }
@@ -146,7 +133,7 @@ function gitClone(){
 	fi
 	total_upstream_list=${#mUpstreamRemote[@]}
 	for ((a=1; a <= total_upstream_list ; a++)); do
-		getRemoteUpstreamURL ${mUpstreamRemote[a]}
+		getRemoteURL ${mUpstreamRemote[a]}
 		cd $mPath
 		$GIT remote add -t ${mUpstreamBranch[a]} ${mUpstreamRemote[a]} $mRemoteURL${mUpstreamName[a]}
 		$GIT fetch ${mUpstreamRemote[a]}
@@ -178,6 +165,7 @@ function isSameProject(){
 	oldRemote=`$GIT config --get remote.origin.url`
 	cd $TOPDIR
 	if [ ! $oldRemote = $mRemoteURL$mName ]; then
+		echo "$oldRemote -> $mRemoteURL$mName"
 		return 1
 	fi
 	return 0
@@ -206,8 +194,8 @@ function isBlackProject(){
 }
 
 function setDefEnv(){
-	DefRemote=`xmllint --xpath 'string(//default/@remote)' $XMLFILE`
-	DefBranch=`xmllint --xpath 'string(//default/@revision)' $XMLFILE`
+	DefRemote=`xmllint --xpath 'string(//default/@remote)' $REMOTEFILE`
+	DefBranch=`xmllint --xpath 'string(//default/@revision)' $REMOTEFILE`
 	DefBranch=${DefBranch#"refs/heads/"}
 }
  	

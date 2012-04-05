@@ -25,6 +25,15 @@ KERNELIMG=`grep ST_KERNEL_IMG $DEFFILE | cut -d "=" -f 2`
 KERNELDIR=${KERNELDIR, 1}
 KERNELCFG=${KERNELCFG, 1}
 KERNELIMG=${KERNELIMG, 1}
+CONFIGFILE=$HOME/.SuperOSR.conf
+
+#Buscamos valores personalizados para el build
+if [ -f $CONFIGFILE ]; then
+	USE_CCACHE=$( grep USE_CCACHE $CONFIGFILE | cut -f 2 -d "=" )
+	if [ -n "$USE_CCACHE" ] && [ "$USE_CCACHE" = "1" ]; then
+		USE_CCACHE="CC=""ccache arm-eabi-gcc"""
+	fi
+fi
 
 if [ ! -d $OUT/obj/kernel ]; then
 	mkdir -p $OUT/obj/kernel
@@ -32,7 +41,7 @@ fi
 
 cp -f $KERNELCFG $OUT/obj/kernel/.config
 
-make menuconfig CC="ccache arm-eabi-gcc" -C $KERNELDIR O=$OUT/obj/kernel \
+make menuconfig $USE_CCACHE -C $KERNELDIR O=$OUT/obj/kernel \
      ARCH=arm INSTALL_MOD_STRIP=1 \
      CROSS_COMPILE=$TOPDIR/prebuilt/linux-x86/toolchain/arm-eabi-4.4.3/bin/arm-eabi- \
      zImage modules

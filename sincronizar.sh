@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (C) 2011 SuperTeam.
+# Copyright (C) 2011-2012 The SuperTeam Developer Group.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -31,7 +31,6 @@ if [ ! -d $RELEASEDIR ]; then
 else
 	msgStatus "Calculando las diferencias con la anterior versión compilada"
 	$SCRIPTDIR/sacadiff.sh $OUT/system $RELEASEDIR/system $ROMDIR/diff.txt
-	cat $ROMDIR/diff.txt
 	        
 	#actualizamos el directorio de la última release
 	msgOK "¿Actualizar el directorio? (s/N): "

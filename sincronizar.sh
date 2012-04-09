@@ -30,7 +30,7 @@ if [ ! -d $RELEASEDIR ]; then
 	mv $OUT/system $RELEASEDIR
 else
 	msgStatus "Calculando las diferencias con la anterior versión compilada"
-	$SCRIPTDIR/sacadiff.sh $OUT/system $RELEASEDIR/system $ROMDIR/diff.txt
+	$SCRIPTDIR/sacadiff.sh $OUT/repack.d/ota/system $RELEASEDIR/system $ROMDIR/diff.txt
 	        
 	#actualizamos el directorio de la última release
 	msgOK "¿Actualizar el directorio? (s/N): "
@@ -38,7 +38,7 @@ else
 	
 	case $sync in
 		[sS] )
-			$SCRIPTDIR/fromdiff.sh $ROMDIR/diff.txt $OUT/system $RELEASEDIR/system
+			$SCRIPTDIR/fromdiff.sh $ROMDIR/diff.txt $OUT/repack.d/ota/system $RELEASEDIR/system
 	esac
 		    
 	#actualizamos el dispositivo
@@ -47,7 +47,7 @@ else
 	
 	case $sync in
 		[sS] )
-			$SCRIPTDIR/fromdiff.sh $ROMDIR/diff.txt $OUT/system $RELEASEDIR/system true
+			$SCRIPTDIR/fromdiff.sh $ROMDIR/diff.txt $OUT/repack.d/ota/system $RELEASEDIR/system true
 	esac
 fi
     

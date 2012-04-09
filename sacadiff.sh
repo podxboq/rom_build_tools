@@ -48,7 +48,7 @@ if [ -f $DIFFFILE ]; then
 fi
 		
 msgStatus "Calculando las diferencias entre los directorios $ORIG y $DEST"
-exec diff -qr $ORIG $DEST | sort -r -o $DIFFFILE 
+exec diff -qr $ORIG $DEST | sort -o $DIFFFILE 
 
 rm $A
 rm $B

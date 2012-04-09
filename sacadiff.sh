@@ -50,9 +50,9 @@ fi
 msgStatus "Calculando las diferencias entre los directorios $ORIG y $DEST"
 exec diff -qr $ORIG $DEST | sort -o $DIFFFILE 
 
-rm $A
-rm $B
-rm $AB
+[ -f $A ] && rm $A
+[ -f $B ] && rm $B
+[ -f $AB ] && rm $AB
 
 mLANG=`echo $LANG | cut -f 2 -d "=" | cut -f 1 -d "."`
 

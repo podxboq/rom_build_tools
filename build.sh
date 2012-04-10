@@ -26,7 +26,7 @@ then
 	exit 1
 fi
 
-MAINFILE=`find device -name team_$1.mk`
+MAINFILE=`find device -name osr_$1.mk`
 
 if [ -z $MAINFILE ]
 then
@@ -166,7 +166,7 @@ do
 
     if [ "$OUT" = "" ]; then
     	. build/envsetup.sh
-    	lunch team_$DEVICE-eng
+    	lunch osr_$DEVICE-eng
         if [ "$?" -ne 0 ]; then
             continue
         fi

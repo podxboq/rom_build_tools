@@ -58,7 +58,7 @@ PRODUCT_MAKEFILES := \
 
 EOF
 
-(cat << EOF) | sed s/__DEVICE__/$DEVICE/g | sed s/__MANUFACTURER__/$MANUFACTURER/g > device/$MANUFACTURER/$DEVICE/team_$DEVICE.mk
+(cat << EOF) | sed s/__DEVICE__/$DEVICE/g | sed s/__MANUFACTURER__/$MANUFACTURER/g > device/$MANUFACTURER/$DEVICE/osr_$DEVICE.mk
 # Copyright (C) 2012 The SuperTeam Developer Group
 #
 # Licensed under the Apache License, Version 2.0 (the "License");

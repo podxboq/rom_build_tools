@@ -16,8 +16,14 @@
 
 TOPDIR=`pwd`
 
+if [ $# -lt 2 ]
+then
+	echo "Usage: $0 <resid> <directory>"
+	exit 1
+fi
+
 cd $TOPDIR
-FILES=`grep -r "name=\"$1\"" . | cut -d ":" -f 1`
+FILES=`grep -r "name=\"$1\"" $2 | cut -d ":" -f 1`
 for f in $FILES; do
   sed '/name="'$1'"/d' $f > newfile.tmp
   mv newfile.tmp $f

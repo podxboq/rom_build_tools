@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (C) 2011 SuperTeam Development Group.
+# Copyright (C) 2011-2012 SuperTeam Development Group.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -154,6 +154,7 @@ do
     echo " 7: Reiniciar/Apagar dispositivo"
     echo " 8: Compilar kernel"
     echo " 9: Cambiar boot"
+    echo "10: Copiar ROM al dispositivo"
     echo "99: salir"
 
     read option
@@ -205,6 +206,17 @@ do
     		;;
     	9)
     		fastboot flash boot $OUT/boot.img
+    		;;
+    	10)
+    		echo "Copiando $OUT/$PRODUCT_ROM_FILE.zip"
+    		adb remount
+    		adb push $OUT/$PRODUCT_ROM_FILE.zip /mnt/sdcard/
+    		if [ "$?" -eq 0 ]; then
+			    msgOK "OK"
+			else
+			    msgErr "Error al copiar la ROM"
+			fi
+    		
     esac    
 done
 	

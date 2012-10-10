@@ -32,6 +32,15 @@ else
 	msgStatus "Calculando las diferencias con la anterior versión compilada"
 	$SCRIPTDIR/sacadiff.sh $OUT/repack.d/ota/system $RELEASEDIR/system $ROMDIR/diff.txt
 	        
+	#actualizamos el dispositivo
+	msgOK "¿Actualizar el dispositivo? (s/N): "
+	read sync
+	
+	case $sync in
+		[sS] )
+			$SCRIPTDIR/fromdiff.sh $ROMDIR/diff.txt $OUT/repack.d/ota/system $RELEASEDIR/system true
+	esac
+	
 	#actualizamos el directorio de la última release
 	msgOK "¿Actualizar el directorio? (s/N): "
 	read sync
@@ -41,13 +50,5 @@ else
 			$SCRIPTDIR/fromdiff.sh $ROMDIR/diff.txt $OUT/repack.d/ota/system $RELEASEDIR/system
 	esac
 		    
-	#actualizamos el dispositivo
-	msgOK "¿Actualizar el dispositivo? (s/N): "
-	read sync
-	
-	case $sync in
-		[sS] )
-			$SCRIPTDIR/fromdiff.sh $ROMDIR/diff.txt $OUT/repack.d/ota/system $RELEASEDIR/system true
-	esac
 fi
     

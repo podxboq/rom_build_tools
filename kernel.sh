@@ -29,8 +29,8 @@ CONFIGFILE=$HOME/.SuperOSR.conf
 
 #Buscamos valores personalizados para el build
 if [ -f $CONFIGFILE ]; then
-	USE_CCACHE=$( grep USE_CCACHE $CONFIGFILE | cut -f 2 -d "=" )
-	if [ -n "$USE_CCACHE" ] && [ "$USE_CCACHE" = "1" ]; then
+	OSR_CCACHE=$( grep USE_CCACHE $CONFIGFILE | cut -f 2 -d "=" )
+	if [ -n "$OSR_CCACHE" ] && [ "$OSR_CCACHE" = "1" ]; then
 		USE_CCACHE="CC=""ccache arm-eabi-gcc"""
 	fi
 fi

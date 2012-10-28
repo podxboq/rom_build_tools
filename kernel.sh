@@ -42,7 +42,7 @@ fi
 cp -f $KERNELCFG $OUT/obj/kernel/.config
 
 make menuconfig $USE_CCACHE -C $KERNELDIR O=$OUT/obj/kernel \
-     ARCH=arm INSTALL_MOD_STRIP=1 \
+     ARCH=arm SUBARCH=arm INSTALL_MOD_STRIP=1 \
      CROSS_COMPILE=$TOPDIR/prebuilt/linux-x86/toolchain/arm-eabi-4.4.3/bin/arm-eabi- \
      zImage modules
 

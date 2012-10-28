@@ -104,7 +104,11 @@ while read line; do
 			then
 				adb shell chmod 755 $preDir$file
 			fi
-        else
+			if [[ "$file" == "/build.prop" ]]
+			then
+				adb shell chmod 644 $preDir$file
+			fi
+                else
             cp -rv $ORIG$file $DEST$file
         fi
     fi

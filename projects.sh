@@ -79,7 +79,7 @@ function getUpstream(){
 			#get project revision
 			mUpstreamBranch[$n]=`echo $data | cut -d "\"" -f 2`
 			#if not, get remote revision
-			if [ -z "${mUpstreamBranch[a]}" ]; then
+			if [ -z "${mUpstreamBranch[n]}" ]; then
 				mUpstreamBranch[$n]=`xmllint --xpath 'string(//remote[@name="'${mUpstreamRemote[n]}'"]/@revision)' $REMOTEFILE`
 			fi
 			#if not, get main default revision

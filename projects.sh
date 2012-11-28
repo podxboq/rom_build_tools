@@ -93,7 +93,12 @@ function getUpstream(){
 function gitPull(){
 	if [ ! -z $mPath ]; then
 		cd $mPath
-		$GIT pull origin $mBranch
+		if $mTag; then
+			$GIT fetch --tags
+			$GIT checkout $mBranch
+		else
+			$GIT pull origin $mBranch
+		fi
 		total_upstream_list=${#mUpstreamRemote[@]}
 		for ((a=1; a <= total_upstream_list ; a++)); do
 			$GIT fetch ${mUpstreamRemote[a]}

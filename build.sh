@@ -84,6 +84,29 @@ function squishear(){
 	fi
 }
 
+function buscar(){
+	echo "Texto: "
+	read text
+	echo "1: Módulo"
+	echo "2: Make"
+	echo "3: C/C++"
+	echo "4: Java"
+	read option
+	if [ ! -z $option ]
+	then
+		case $option in
+			1) mgrep LOCAL_MODULE | grep $text\$
+			;;
+			2) mgrep "$text"
+			;;
+			3) cgrep "$text"
+			;;
+			4) jgrep "$text"
+			
+		esac
+	fi
+}
+	
 function reiniciar(){
 	echo "1: Normal"
 	echo "2: Recovery"
@@ -155,6 +178,7 @@ do
     echo " 8: Compilar kernel"
     echo " 9: Cambiar boot"
     echo "10: Copiar ROM al dispositivo"
+    echo "11: Buscar"
     echo "99: salir"
 
     read option
@@ -216,6 +240,9 @@ do
 			else
 			    msgErr "Error al copiar la ROM"
 			fi
+			;;
+		11)
+			buscar
     		
     esac    
 done

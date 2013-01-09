@@ -97,11 +97,12 @@ function gitPull(){
 			$GIT fetch --tags
 			$GIT checkout $mBranch
 		else
+			$GIT fetch origin $mBranch
 			$GIT pull origin $mBranch
 		fi
 		total_upstream_list=${#mUpstreamRemote[@]}
 		for ((a=1; a <= total_upstream_list ; a++)); do
-			$GIT fetch ${mUpstreamRemote[a]}
+			$GIT fetch ${mUpstreamRemote[a]} --tags
 			$GIT merge ${mUpstreamRemote[a]}/${mUpstreamBranch[a]}
 		done
 		cd $TOPDIR
@@ -141,7 +142,7 @@ function gitClone(){
 		getRemoteURL ${mUpstreamRemote[a]}
 		cd $mPath
 		$GIT remote add -t ${mUpstreamBranch[a]} ${mUpstreamRemote[a]} $mRemoteURL${mUpstreamName[a]}
-		$GIT fetch ${mUpstreamRemote[a]}
+		$GIT fetch ${mUpstreamRemote[a]} --tags
 		cd $TOPDIR
 	done
 }

@@ -99,16 +99,16 @@ while read line; do
 
         if $DEVICE
         then
-            adb push $ORIG$file $preDir$file
 			if [[ "$file" =~ "/bin/" ]] || [[ "$file" =~ "/xbin/" ]]
 			then
-				adb shell chmod 755 $preDir$file
+				chmod 755 $ORIG$file
 			fi
 			if [[ "$file" == "/build.prop" ]]
 			then
-				adb shell chmod 644 $preDir$file
+				chmod 644 $ORIG$file
 			fi
-                else
+            adb push $ORIG$file $preDir$file
+        else
             cp -rv $ORIG$file $DEST$file
         fi
     fi

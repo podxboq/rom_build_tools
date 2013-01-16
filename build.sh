@@ -19,6 +19,7 @@
 SCRIPTDIR=`dirname $0`
 TOPDIR=`pwd`
 . $SCRIPTDIR/mensajes.sh
+LOGFILE=error.log
 
 if [ $# -lt 1 ]
 then
@@ -64,7 +65,7 @@ fi
 function compilar(){
 	#borramos los objetos para forzar que se copie la ROM entera
 	rm -rf $OUT/recovery $OUT/root $OUT/system $OUT/kernel 2&> /dev/null
-    make -j${CORES} otapackage
+	make -j${CORES} otapackage 2> $LOGFILE
 	if [ "$?" -eq 0 ]; then
 	    msgOK "Compilación correcta"
 	else
@@ -179,6 +180,7 @@ do
     echo " 9: Cambiar boot"
     echo "10: Copiar ROM al dispositivo"
     echo "11: Buscar"
+    echo "12: Ver fichero de errores"
     echo "99: salir"
 
     read option
@@ -243,6 +245,9 @@ do
 			;;
 		11)
 			buscar
+			;;
+		12)
+			cat $LOGFILE
     		
     esac    
 done

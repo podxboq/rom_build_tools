@@ -31,7 +31,7 @@ CONFIGFILE=$HOME/.SuperOSR.conf
 if [ -f $CONFIGFILE ]; then
 	OSR_CCACHE=$( grep USE_CCACHE $CONFIGFILE | cut -f 2 -d "=" )
 	if [ -n "$OSR_CCACHE" ] && [ "$OSR_CCACHE" = "1" ]; then
-		USE_CCACHE="CC=""ccache arm-eabi-gcc"""
+		USE_CCACHE="CC=""$TOPDIR/prebuilts/misc/linux-x86/ccache/ccache gcc"""
 	fi
 fi
 
@@ -41,9 +41,9 @@ fi
 
 cp -f $KERNELCFG $OUT/obj/kernel/.config
 
-make menuconfig $USE_CCACHE -C $KERNELDIR O=$OUT/obj/kernel \
-     ARCH=arm SUBARCH=arm INSTALL_MOD_STRIP=1 \
-     CROSS_COMPILE=$TOPDIR/prebuilt/linux-x86/toolchain/arm-eabi-4.4.3/bin/arm-eabi- \
+make menuconfig -C $KERNELDIR O=$OUT/obj/kernel \
+    ARCH=arm SUBARCH=arm INSTALL_MOD_STRIP=1 \
+    CROSS_COMPILE=$TOPDIR/prebuilts/gcc/linux-x86/arm/arm-eabi-4.7/bin/arm-eabi- \
      zImage modules
 
 cp -fv $OUT/obj/kernel/.config $KERNELCFG

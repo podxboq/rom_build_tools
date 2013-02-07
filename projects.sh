@@ -254,6 +254,9 @@ for d in $PROJECTLIST; do
 		if [ -d $mPath ]; then
 			gitStatus
 		fi
+	elif [ "$1" = resync ]; then
+		rm -rf $mPath
+		gitClone
 	elif [ "$1" = init ]; then
 		if [ ! -d $mPath ]; then
 			gitClone

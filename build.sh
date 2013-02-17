@@ -75,7 +75,7 @@ function compilar(){
 }	 
 
 function squishear(){
-	SQUISHER=`find vendor -name squisher*`
+	SQUISHER=`find vendor -name squisher.sh`
 	$SQUISHER
 	if [ "$?" -eq 0 ]; then
 	    msgOK "Personalización correcta"
@@ -83,6 +83,11 @@ function squishear(){
 	    msgErr "Error al ejecutar squisher"
 	    FAIL=true
 	fi
+}
+
+function zipear(){
+	ZIPEAR=`find vendor -name zipear.sh`
+	$ZIPEAR
 }
 
 function buscar(){
@@ -171,16 +176,17 @@ do
     echo "Elige una opción:"
     echo " 1: make"
     echo " 2: squisher"
-    echo " 3: sincronizar"
-    echo " 4: crear parche"
-    echo " 5: make + squisher + sincronizar"
-    echo " 6: limpiar build"
-    echo " 7: Reiniciar/Apagar dispositivo"
-    echo " 8: Compilar kernel"
-    echo " 9: Cambiar boot"
-    echo "10: Copiar ROM al dispositivo"
-    echo "11: Buscar"
-    echo "12: Ver fichero de errores"
+    echo " 3: zip"
+    echo " 4: sincronizar"
+    echo " 5: crear parche"
+    echo " 6: make + squisher + zip + sincronizar"
+    echo " 7: limpiar build"
+    echo " 8: Reiniciar/Apagar dispositivo"
+    echo " 9: Compilar kernel"
+    echo "10: Cambiar boot"
+    echo "11: Copiar ROM al dispositivo"
+    echo "12: Buscar"
+    echo "13: Ver fichero de errores"
     echo "99: salir"
 
     read option
@@ -207,12 +213,15 @@ do
 			squishear 
 			;;
 		3) 
+			zipear 
+			;;
+		4) 
 			sincronizar 
 			;;
-		4)
+		5)
 			parchear
 			;;
-		5)
+		6)
 			compilar
 			if ! $FAIL ; then
 				squishear
@@ -220,20 +229,23 @@ do
 			if ! $FAIL ; then
 				sincronizar
 			fi
-			;;
-    	6)
+			if ! $FAIL ; then
+				zipear
+			fi
+						;;
+    	7)
     		makeClean
     		;;
-    	7)
+    	8)
     		reiniciar
     		;;
-    	8)	
+    	9)	
     		$SCRIPTDIR/kernel.sh $DEVICE
     		;;
-    	9)
+    	10)
     		fastboot flash boot $OUT/boot.img
     		;;
-    	10)
+    	11)
     		echo "Copiando $OUT/$PRODUCT_ROM_FILE.zip"
     		adb remount
     		adb push $OUT/$PRODUCT_ROM_FILE.zip /mnt/sdcard/
@@ -243,10 +255,10 @@ do
 			    msgErr "Error al copiar la ROM"
 			fi
 			;;
-		11)
+		12)
 			buscar
 			;;
-		12)
+		13)
 			cat $LOGFILE
     		
     esac    

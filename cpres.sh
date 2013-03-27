@@ -36,14 +36,17 @@ cd $1
 FILES=`grep -r "\"$3\"" . | cut -d ":" -f 1`
 for f in $FILES; do
 	FULL_PATH_FILE=$TOPDIR/$2$f 
-	cd $TOPDIR/$2
-	TOTAL_LINES=`wc -l $f | cut -d " " -f 1`
-	head -n $(($TOTAL_LINES - 1)) $f > $FULL_PATH_FILE.tmp
-	cd $TOPDIR/$1
-	out $3 $TOPDIR/$1$f >> $FULL_PATH_FILE.tmp
-	echo >> $FULL_PATH_FILE.tmp
-	cd $TOPDIR/$2
-	tail -n 1 $f >> $FULL_PATH_FILE.tmp
-	cat $FULL_PATH_FILE.tmp
-	mv $FULL_PATH_FILE.tmp $FULL_PATH_FILE
+	if [ -f $FULL_PATH_FILE ]
+	then
+		cd $TOPDIR/$2
+		TOTAL_LINES=`wc -l $f | cut -d " " -f 1`
+		head -n $(($TOTAL_LINES - 1)) $f > $FULL_PATH_FILE.tmp
+		cd $TOPDIR/$1
+		out $3 $TOPDIR/$1$f >> $FULL_PATH_FILE.tmp
+		echo >> $FULL_PATH_FILE.tmp
+		cd $TOPDIR/$2
+		tail -n 1 $f >> $FULL_PATH_FILE.tmp
+		mv $FULL_PATH_FILE.tmp $FULL_PATH_FILE
+		echo "Modificado $FULL_PATH_FILE"
+	fi
 done;

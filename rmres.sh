@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (C) 2011-2012 The SuperTeam Development Group.
+# Copyright (C) 2011-2013 The SuperTeam Development Group.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,16 +16,18 @@
 
 TOPDIR=`pwd`
 
-if [ $# -lt 2 ]
+if [ $# -lt 1 ]
 then
-	echo "Usage: $0 <directory> <resid>"
+	echo "Usage: $0 <resid>..."
 	exit 1
 fi
 
 cd $TOPDIR
-FILES=`grep -r "name=\"$2\"" $1 | cut -d ":" -f 1`
-for f in $FILES; do
-	sed '/name="'$2'"/d' $f > newfile.tmp
-	mv newfile.tmp $f
+for res in "$@"; do
+	FILES=`grep -r "name=\"$res\"" res/ | cut -d ":" -f 1`
+	for f in $FILES; do
+		sed '/name="'$res'"/d' $f > newfile.tmp
+		mv newfile.tmp $f
+	done;
 done;
 

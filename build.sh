@@ -21,9 +21,9 @@ TOPDIR=`pwd`
 . $SCRIPTDIR/mensajes.sh
 LOGFILE=error.log
 
-if [ $# -gt 2 ] || [ $# -lt 1 ]
+if [ $# -gt 3 ] || [ $# -lt 1 ]
 then
-	msgErr "Usage: $0 <device> [organization]"
+	msgErr "Usage: $0 <device> [organization] [buildtype]"
 	exit 1
 fi
 
@@ -31,6 +31,12 @@ ORG=$2
 if [ "$ORG" == "" ]
 then
 	ORG=osr
+fi
+
+BUILD=$3
+if [ "$BUILD" == "" ]
+then
+	BUILD=eng
 fi
 
 MAINFILE=`find device -name $ORG\_$1.mk`
@@ -205,7 +211,7 @@ do
 
     if [ "$OUT" = "" ]; then
     	. build/envsetup.sh
-    	lunch "$ORG"_"$DEVICE"-eng
+    	lunch "$ORG"_"$DEVICE"-"$BUILD"
         if [ "$?" -ne 0 ]; then
             continue
         fi

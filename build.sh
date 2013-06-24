@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (C) 2011-2012 SuperTeam Development Group.
+# Copyright (C) 2011-2013 SuperTeam Development Group.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,14 +21,19 @@ TOPDIR=`pwd`
 . $SCRIPTDIR/mensajes.sh
 LOGFILE=error.log
 
-if [ $# -lt 1 ]
+if [ $# -gt 2 ] || [ $# -lt 1 ]
 then
-	msgErr "Usage: $0 <device>"
+	msgErr "Usage: $0 <device> [organization]"
 	exit 1
 fi
 
-MAINFILE=`find device -name osr_$1.mk`
+ORG=$2
+if [ "$ORG" == "" ]
+then
+	ORG=osr
+fi
 
+MAINFILE=`find device -name $ORG\_$1.mk`
 if [ -z $MAINFILE ]
 then
 	msgErr "No se ha encontrado el dispositivo $1"
@@ -41,6 +46,7 @@ if [ -n $SUBDEVICE ]; then
 else
 	DEVICE=$SUBDEVICE
 fi
+
 ROMDIR=$TOPDIR/../cache/roms/$DEVICE
 BUILDDIR=$ROMDIR/last_build
 RELEASEDIR=$ROMDIR/last_release
@@ -199,7 +205,7 @@ do
 
     if [ "$OUT" = "" ]; then
     	. build/envsetup.sh
-    	lunch osr_$DEVICE-eng
+    	lunch "$ORG"_"$DEVICE"-eng
         if [ "$?" -ne 0 ]; then
             continue
         fi

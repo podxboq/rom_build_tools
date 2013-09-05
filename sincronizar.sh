@@ -21,6 +21,7 @@ ROMDIR=$1
 RELEASEDIR=$ROMDIR/last_release
 PATCHDIR=$ROMDIR/last_patch
 PUBLICDIR=$ROMDIR/last_public
+REPACK=$OUT/repack.d/ota
 
 . $SCRIPTDIR/mensajes.sh
 
@@ -30,7 +31,7 @@ if [ ! -d $RELEASEDIR ]; then
 	mv $OUT/system $RELEASEDIR
 else
 	msgStatus "Calculando las diferencias con la anterior versión compilada"
-	$SCRIPTDIR/sacadiff.sh $OUT/repack.d/ota/system $RELEASEDIR/system $ROMDIR/diff.txt
+	$SCRIPTDIR/sacadiff.sh $REPACK/system $RELEASEDIR/system $ROMDIR/diff.txt
 	        
 	#actualizamos el dispositivo
 	msgOK "¿Actualizar el dispositivo? (s/N): "
@@ -38,7 +39,7 @@ else
 	
 	case $sync in
 		[sS] )
-			$SCRIPTDIR/fromdiff.sh $ROMDIR/diff.txt $OUT/repack.d/ota/system $RELEASEDIR/system true
+			$SCRIPTDIR/fromdiff.sh $ROMDIR/diff.txt $REPACK/system $RELEASEDIR/system true
 	esac
 	
 	#actualizamos el directorio de la última release
@@ -47,7 +48,7 @@ else
 	
 	case $sync in
 		[sS] )
-			$SCRIPTDIR/fromdiff.sh $ROMDIR/diff.txt $OUT/repack.d/ota/system $RELEASEDIR/system
+			$SCRIPTDIR/fromdiff.sh $ROMDIR/diff.txt $REPACK/system $RELEASEDIR/system
 	esac
 		    
 fi

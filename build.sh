@@ -113,14 +113,10 @@ function buscar(){
 	if [ ! -z $option ]
 	then
 		case $option in
-			1) mgrep LOCAL_MODULE | grep $text\$
-			;;
-			2) mgrep "$text"
-			;;
-			3) cgrep "$text"
-			;;
-			4) jgrep "$text"
-			
+			1) mgrep LOCAL_MODULE | grep $text\$;;
+			2) mgrep "$text";;
+			3) cgrep "$text";;
+			4) jgrep "$text";;
 		esac
 	fi
 }
@@ -134,14 +130,10 @@ function reiniciar(){
 	if [ ! -z $option ]
 	then
 		case $option in
-			1) adb reboot
-			;;
-			2) adb reboot recovery
-			;;
-			3) adb reboot bootloader
-			;;
-			4) adb shell halt
-			
+			1) adb reboot;;
+			2) adb reboot recovery;;
+			3) adb reboot bootloader;;
+			4) adb shell halt;;
 		esac
 	fi
 }
@@ -218,61 +210,33 @@ do
     fi
     
     case $option in
-    	1) 
-    		compilar 
-    		;;
-		2) 
-			squishear 
-			;;
-		3) 
-			zipear 
-			;;
-		4) 
-			sincronizar 
-			;;
-		5)
-			parchear
-			;;
-		6)
-			compilar
-			if ! $FAIL ; then
-				squishear
-			fi
-			if ! $FAIL ; then
-				sincronizar
-			fi
-			if ! $FAIL ; then
-				zipear
-			fi
-						;;
-    	7)
-    		makeClean
-    		;;
-    	8)
-    		reiniciar
-    		;;
-    	9)	
-    		$SCRIPTDIR/kernel.sh $DEVICE
-    		;;
-    	10)
-    		fastboot flash boot $OUT/boot.img
-    		;;
-    	11)
-    		echo "Copiando $OUT/$PRODUCT_ROM_FILE.zip"
-    		adb remount
-    		adb push $OUT/$PRODUCT_ROM_FILE.zip /mnt/sdcard/
+    	1) compilar;;
+	2) squishear;;
+	3) zipear;;
+	4) sincronizar;;
+	5) parchear;;
+	6) compilar
+		if ! $FAIL ; then
+			squishear
+		fi
+		if ! $FAIL ; then
+			sincronizar
+		fi
+		if ! $FAIL ; then
+			zipear
+		fi;;
+    	7) makeClean;;
+    	8) reiniciar;;
+    	9) $SCRIPTDIR/kernel.sh $DEVICE;;
+    	10) fastboot flash boot $OUT/boot.img;;
+    	11) echo "Copiando $OUT/$PRODUCT_ROM_FILE.zip"; adb remount; adb push $OUT/$PRODUCT_ROM_FILE.zip /mnt/sdcard/
     		if [ "$?" -eq 0 ]; then
-			    msgOK "OK"
-			else
-			    msgErr "Error al copiar la ROM"
-			fi
-			;;
-		12)
-			buscar
-			;;
-		13)
-			cat $LOGFILE
-    		
+			msgOK "OK"
+		else
+			msgErr "Error al copiar la ROM"
+		fi;;
+	12) buscar;;
+	13) cat $LOGFILE;;	
     esac    
 done
 	

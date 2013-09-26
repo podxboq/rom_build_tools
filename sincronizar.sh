@@ -26,9 +26,9 @@ REPACK=$OUT/repack.d/ota
 . $SCRIPTDIR/mensajes.sh
 
 if [ ! -d $RELEASEDIR ]; then
-	msgErr "No existe el directorio $RELEASEDIR, se mueve la versión build y se obvia la gestión de cambios"
+	msgWarn "No existe el directorio $RELEASEDIR, se copia la versión build y se obvia la gestión de cambios"
 	mkdir -p $RELEASEDIR
-	mv $OUT/system $RELEASEDIR
+	cp -rf $REPACK/system $RELEASEDIR
 else
 	msgStatus "Calculando las diferencias con la anterior versión compilada"
 	$SCRIPTDIR/sacadiff.sh $REPACK/system $RELEASEDIR/system $ROMDIR/diff.txt

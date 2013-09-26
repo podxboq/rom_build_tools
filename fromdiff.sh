@@ -80,11 +80,11 @@ while read line; do
     	then
         	accion=borrar
         	prefile=${line#*$DEST*}
-			prefile=${prefile/: //}
+		prefile=${prefile/: //}
         else
         	accion=copiar
         	prefile=${line#*$ORIG*}
-			prefile=${prefile/: //}
+		prefile=${prefile/: //}
         fi
     fi
     
@@ -97,19 +97,24 @@ while read line; do
     		mkdir -p $DEST$file
     	fi
 
+    	if [ -d $ORIG$file ]
+    	then
+    		comodin="/*"
+    	fi
+
         if $DEVICE
         then
-			if [[ "$file" =~ "/bin/" ]] || [[ "$file" =~ "/xbin/" ]]
-			then
-				chmod 755 $ORIG$file
-			fi
-            adb push $ORIG$file $preDir$file
-			if [[ "$file" == "/build.prop" ]]
-			then
-				adb shell chmod 644 $preDir$file
-			fi
+		if [[ "$file" =~ "/bin/" ]] || [[ "$file" =~ "/xbin/" ]]
+		then
+			chmod 755 $ORIG$file
+		fi
+		adb push $ORIG$file$comodin $preDir$file
+		if [[ "$file" == "/build.prop" ]]
+		then
+			adb shell chmod 644 $preDir$file
+		fi
         else
-            cp -rv $ORIG$file $DEST$file
+            cp -rv $ORIG$file$comodin $DEST$file
         fi
     fi
 

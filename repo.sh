@@ -23,10 +23,7 @@ if [[ "$1" =~ "sync" ]]; then
 	date >> cambios.txt
 fi
 
-if [[ "$1" = "upgrade" ]]; then
-  cd $MAINDIR
-  $GIT fetch
-fi
+$SCRIPTDIR/projects.sh $1 $MAINDIR/default.xml $2
 
 if [ -f $MAINDIR/personal.xml ]; then
 	echo "Procesando proyectos personalizados..."

@@ -206,7 +206,7 @@ function setDefEnv(){
 }
  	
 function init(){
-	PullActions="sync init fullsync"
+	PullActions="upgrade"
 	if [[ -z ${PullActions%%*$1*} ]]; then
 		cp $XMLFILE $OLDXMLFILE
 		setEnv "path=\"$MAINDIR\""

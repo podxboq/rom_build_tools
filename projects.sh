@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2011, 2012 The Superteam Development Group
+# Copyright (C) 2011, 2012, 2013 podxboq
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,14 +23,12 @@ UPSTREAMFILE=$MAINDIR/fork.xml
 PERSONALFILE=$MAINDIR/personal.xml
 BLACKFILE=$MAINDIR/black.xml
 REMOTEFILE=$MAINDIR/remotes.xml
-OLDXMLFILE=`mktemp`
 GREEN="\033[1;32m"
 RED="\033[1;31m"
 COLOROFF="\033[0m"
 
 function getProjectList(){
   PROJECTLIST=`xmllint --xpath '//project/@path' $TOPDIR/$XMLFILE`
-  OLDPROJECTLIST=`xmllint --xpath '//project/@path' $OLDXMLFILE`
 }
 
 function getPath(){
@@ -97,7 +95,6 @@ function gitPull(){
       $GIT fetch --tags
       $GIT checkout $mBranch
     else
-      $GIT fetch origin $mBranch
       $GIT pull origin $mBranch
     fi
     total_upstream_list=${#mUpstreamRemote[@]}
@@ -166,7 +163,7 @@ function setEnv(){
   echo -e $GREEN$mPath $COLOROFF
 }
 
-function isSameProject(){
+function isSameServer(){
   cd $mPath
   oldRemote=`$GIT config --get remote.origin.url`
   cd $TOPDIR
@@ -176,7 +173,21 @@ function isSameProject(){
   fi
   return 0
 }
-    
+
+function isSameBranch(){
+  cd $mPath
+  oldBranch=`$GIT rev-parse --abbrev-ref HEAD`
+  if [ $oldBranch = "HEAD" ]; then
+    return 0
+  fi;
+  cd $TOPDIR
+  if [ ! $oldBranch = $mBranch ]; then
+    echo "$oldBranch -> $mBranch"
+    return 1
+  fi
+  return 0
+}
+
 function isPersonalProject(){
   if [ -f $PERSONALFILE ] && ! [ $PERSONALFILE = $XMLFILE ] 
   then
@@ -205,36 +216,13 @@ function setDefEnv(){
   DefBranch=${DefBranch#"refs/heads/"}
 }
   
-function init(){
-  PullActions="upgrade"
-  if [[ -z ${PullActions%%*$1*} ]]; then
-    cp $XMLFILE $OLDXMLFILE
-    setEnv "path=\"$MAINDIR\""
-    gitPull
-    setDefEnv
-  fi
-}
-  
 setDefEnv
-init $1
 
 if [ -z $3 ]; then
   getProjectList
 else
   PROJECTLIST="path=\""$3"\""
 fi
-
-for d in $OLDPROJECTLIST; do
-  if ! [[ $PROJECTLIST =~ $d ]]; then
-    oldpath=`xmllint --xpath 'string(//project[@'$d']/@path)' $OLDXMLFILE`
-    echo -e "Se ha quitado la ruta $RED$oldpath$COLOROFF de la lista de proyectos."
-    echo "¿Quiere borrarlo (s/N)?"
-    read option
-    if [ "$option" = s ]; then
-      rm -rf $oldpath
-    fi
-  fi
-done
 
 for d in $PROJECTLIST; do
   setEnv $d
@@ -264,23 +252,30 @@ for d in $PROJECTLIST; do
   elif [ "$1" = push ]; then
       gitPush
   elif [ "$1" = sync ]; then
-      if [ ! -d $mPath ] 
-      then
-        gitClone
+    if [ ! -d $mPath ]; then
+      gitClone
     else
-        isSameProject $d
-        if [ $? -eq 1 ]
-        then
+      isSameServer $d
+      if [ $? -eq 1 ]; then
         echo -e "Se ha cambiado el servidor del proyecto $RED$mPath$COLOROFF, ¿desea borrarlo para clonarlo (S/n)?"
         read option
-        if [ -z $option ] || [ "$option" = "s" ]
-        then
+        if [ -z $option ] || [ "$option" = "s" ]; then
           rm -rf $mPath
           gitClone
         fi
       else
-        gitPull
-        fi
+	      isSameBranch $d
+	      if [ $? -eq 1 ]; then
+	        echo -e "Se ha cambiado la rama del proyecto $RED$mPath$COLOROFF, ¿desea borrarlo para clonarlo (S/n)?"
+	        read option
+	        if [ -z $option ] || [ "$option" = "s" ]; then
+	          rm -rf $mPath
+	          gitClone
+	        fi
+	      else
+	        gitPull
+	      fi
+      fi
     fi
   elif [ "$1" = fullsync ]; then
     if [ -d $mPath ]; then

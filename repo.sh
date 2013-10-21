@@ -23,12 +23,16 @@ if [[ "$1" =~ "sync" ]]; then
 	date >> cambios.txt
 fi
 
-$SCRIPTDIR/projects.sh $1 $MAINDIR/default.xml $2
-
-if [ -f $MAINDIR/personal.xml ]; then
-	echo "Procesando proyectos personalizados..."
-	$SCRIPTDIR/projects.sh $1 $MAINDIR/personal.xml $2
+if [ "$1" = "upgrade" ]; then
+  $SCRIPTDIR/upgrade.sh
+else
+  $SCRIPTDIR/projects.sh $1 $MAINDIR/default.xml $2
+	if [ -f $MAINDIR/personal.xml ]; then
+	  echo "Procesando proyectos personalizados..."
+	  $SCRIPTDIR/projects.sh $1 $MAINDIR/personal.xml $2
+	fi
 fi
+
 
 if [ "$1" = init ]; then
 	cp build/core/root.mk Makefile

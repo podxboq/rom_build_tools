@@ -177,10 +177,10 @@ function isSameServer(){
 function isSameBranch(){
   cd $mPath
   oldBranch=`$GIT rev-parse --abbrev-ref HEAD`
-  if [ $oldBranch = "HEAD" ]; then
+  cd $TOPDIR
+    if [ $oldBranch = "HEAD" ]; then
     return 0
   fi;
-  cd $TOPDIR
   if [ ! $oldBranch = $mBranch ]; then
     echo "$oldBranch -> $mBranch"
     return 1

@@ -70,7 +70,7 @@ fi
 function compilar(){
   #borramos los objetos para forzar que se copie la ROM entera
   rm -rf $OUT/recovery $OUT/root $OUT/system $OUT/kernel 2&> /dev/null
-  make -j${CORES} otapackage 2> $LOGFILE
+  make TARGET_TOOLS_PREFIX=$TOPDIR/prebuilts/gcc/linux-x86/arm/arm-linux-linaro-4.7/bin/arm-linux-androideabi- -j${CORES} otapackage 2> $LOGFILE
   if [ "$?" -eq 0 ]; then
       msgOK "Compilación correcta"
   else

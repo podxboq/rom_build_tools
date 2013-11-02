@@ -227,14 +227,12 @@ fi
 for d in $PROJECTLIST; do
   setEnv $d
   isBlackProject $mPath
-  if [ $? -eq 0 ]
-  then
+  if [ $? -eq 0 ]; then
     continue
   fi
 
   isPersonalProject $mPath
-  if [ $? -eq 0 ]
-  then
+  if [ $? -eq 0 ]; then
     continue
   fi
 

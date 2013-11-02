@@ -100,6 +100,8 @@ while read line; do
     	if [ -d $ORIG$file ]
     	then
     		comodin="/*"
+    	else
+		comodin=""
     	fi
 
         if $DEVICE

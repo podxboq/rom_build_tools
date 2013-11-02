@@ -23,26 +23,24 @@ else
   SCRIPTDIR=`dirname $0`/`dirname $SCRIPTDIR`
 fi
 
+export SCRIPTDIR=$SCRIPTDIR
 TOPDIR=`pwd`
 . $SCRIPTDIR/mensajes.sh
 LOGFILE=error.log
 
-if [ $# -gt 3 ] || [ $# -lt 1 ]
-then
+if [ $# -gt 3 ] || [ $# -lt 1 ]; then
   msgErr "Usage: $0 <device> [organization] [buildtype]"
   exit 1
 fi
 
 DEVICE=$1
 ORG=$2
-if [ "$ORG" == "" ]
-then
+if [ "$ORG" == "" ]; then
   ORG=osr
 fi
 
 BUILD=$3
-if [ "$BUILD" == "" ]
-then
+if [ "$BUILD" == "" ]; then
   BUILD=eng
 fi
 
@@ -56,9 +54,6 @@ CONFIGFILE=$HOME/.SuperOSR.conf
 #Buscamos valores personalizados para el build
 if [ -f $CONFIGFILE ]; then
   CORES=$( grep CORES $CONFIGFILE | cut -f 2 -d "=" )
-  if [ -z "$CORES" ]; then
-    CORES=$( cat /proc/cpuinfo | grep -c processor )
-  fi
   USE_CCACHE=$( grep USE_CCACHE $CONFIGFILE | cut -f 2 -d "=" )
   if [ -n "$USE_CCACHE" ] && [ "$USE_CCACHE" = "1" ]; then
     export USE_CCACHE=1
@@ -67,10 +62,14 @@ if [ -f $CONFIGFILE ]; then
   fi
 fi
 
+if [ -z "$CORES" ]; then
+  CORES=$( cat /proc/cpuinfo | grep -c processor )
+fi
+  
 function compilar(){
   #borramos los objetos para forzar que se copie la ROM entera
   rm -rf $OUT/recovery $OUT/root $OUT/system $OUT/kernel 2&> /dev/null
-  make TARGET_TOOLS_PREFIX=$TOPDIR/prebuilts/gcc/linux-x86/arm/arm-linux-linaro-4.7/bin/arm-linux-androideabi- -j${CORES} otapackage 2> $LOGFILE
+  make -j${CORES} otapackage 2> $LOGFILE
   if [ "$?" -eq 0 ]; then
       msgOK "Compilación correcta"
   else

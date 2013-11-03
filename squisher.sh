@@ -4,8 +4,7 @@
 #
 
 #Inicializamos las variables
-export VENDOR=vendor/podxboq
-MODS=$VENDOR/mods
+MODS=$SCRIPTDIR/mods
 OTAPACKAGE=$OUT/$PRODUCT_ROM_FILE-ota.zip
 OPTICHARGER=$SCRIPTDIR/preopticharger.sh
 QUIET=-q
@@ -46,10 +45,10 @@ echo
 )
 
 # Copiado de archivos comunes
-[ -d $ANDROID_BUILD_TOP/$MODS/common ] && cp -rf $ANDROID_BUILD_TOP/$MODS/common/* $REPACKOTA/
+[ -d $MODS/common ] && cp -rf $MODS/common/* $REPACKOTA/
 
 # Copiado de archivos específicos
-[ -d $ANDROID_BUILD_TOP/$MODS/$ALIAS ] && cp -rf $ANDROID_BUILD_TOP/$MODS/$ALIAS/* $REPACKOTA/
+[ -d $MODS/$ALIAS ] && cp -rf $MODS/$ALIAS/* $REPACKOTA/
 
 #Ejecuta opticharger sobre el resto de apks de la rom
 cd $REPACKOTA/system/app

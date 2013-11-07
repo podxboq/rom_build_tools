@@ -38,16 +38,15 @@ rm -rf $REPACK
 mkdir -p $REPACKOTA
 (
 cd $REPACKOTA
-msgInfo "Copiando ficheros"
+msgInfo "Copiando ficheros compilados"
 cp -rf $OUT/system $REPACKOTA
 unzip -nq $OTAPACKAGE -d $REPACKOTA
-echo
 )
 
-# Copiado de archivos comunes
+msgInfo "Copiando ficheros comunes"
 [ -d $MODS/common ] && cp -rf $MODS/common/* $REPACKOTA/
 
-# Copiado de archivos específicos
+msgInfo "Copiando ficheros específicos"
 [ -d $MODS/$ALIAS ] && cp -rf $MODS/$ALIAS/* $REPACKOTA/
 
 #Ejecuta opticharger sobre el resto de apks de la rom

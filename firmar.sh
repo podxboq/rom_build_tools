@@ -18,7 +18,7 @@
 # Firma ficheros para instalar en el dispositivo. 
 #
 
-. mensajes.sh
+. $SCRIPTDIR/mensajes.sh
 
 OUT_TARGET_HOST=linux-x86
 SECURITYDIR=$ANDROID_BUILD_TOP/build/target/product/security

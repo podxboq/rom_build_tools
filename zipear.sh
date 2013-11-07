@@ -18,7 +18,7 @@ ROMPACKAGE=$OUT/$PRODUCT_ROM_FILE.zip
 REPACK=$OUT/repack.d
 REPACKOTA=$REPACK/ota
 
-. mensajes.sh
+. $SCRIPTDIR/mensajes.sh
 
 # Se verifica que existe el directorio de trabajo.
 if [ ! -d "$REPACKOTA" ]; then
@@ -29,16 +29,8 @@ fi
 cd $REPACKOTA
 [ -e $REPACK/update.zip ] && rm -f $REPACK/update.zip
 
-if which pigz &>/dev/null; then
-  msgStatus "Comprimiendo ROM usando pigz"
-  pigz -rqy -9 $REPACK/update.zip .
-elif which 7za &>/dev/null; then
-  msgStatus "Comprimiendo ROM usando 7za"
-  7za a -tzip -mx9 -mmt $REPACK/update.zip .
-else
-	msgStatus "Comprimiendo ROM usando zip"
-	zip -rqy -9 $REPACK/update.zip . 
-fi
+msgStatus "Comprimiendo ROM usando zip"
+time zip -rqy -9 $REPACK/update.zip . 
 
 firmar.sh $REPACK/update.zip $ROMPACKAGE
 if [ "$?" -ne 0 ]; then

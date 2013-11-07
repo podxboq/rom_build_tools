@@ -181,6 +181,7 @@ do
   echo "11: Copiar ROM al dispositivo"
   echo "12: Buscar"
   echo "13: Ver fichero de errores"
+  echo "14: Mandar rom al dispositivo"
   echo "99: salir"
 
   read option
@@ -227,6 +228,7 @@ do
         fi;;
     12) buscar;;
     13) cat $LOGFILE;;
+    14) adb sideload $OUT/$PRODUCT_ROM_FILE.zip;;
   esac    
 done
   

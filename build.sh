@@ -97,8 +97,9 @@ function buscar(){
   read text
   echo "1: Módulo"
   echo "2: Make"
-  echo "3: C/C++"
-  echo "4: Java"
+  echo "3: C/C++ especificación"
+  echo "3: C/C++ implementación"
+  echo "5: Java"
   read option
   if [ ! -z $option ]
   then
@@ -106,7 +107,8 @@ function buscar(){
       1) mgrep LOCAL_MODULE | grep $text\$;;
       2) mgrep "$text";;
       3) cgrep "$text";;
-      4) jgrep "$text";;
+      4) hgrep "$text";;
+      5) jgrep "$text";;
     esac
   fi
 }

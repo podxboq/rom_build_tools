@@ -68,7 +68,7 @@ fi
   
 function compilar(){
   #borramos los objetos para forzar que se copie la ROM entera
-  rm -rf $OUT/recovery $OUT/root $OUT/system $OUT/kernel 2&> /dev/null
+  #rm -rf $OUT/recovery $OUT/root $OUT/system $OUT/kernel 2&> /dev/null
   make -j${CORES} otapackage 2> $LOGFILE
   if [ "$?" -eq 0 ]; then
       msgOK "Compilación correcta"
@@ -98,7 +98,7 @@ function buscar(){
   echo "1: Módulo"
   echo "2: Make"
   echo "3: C/C++ especificación"
-  echo "3: C/C++ implementación"
+  echo "4: C/C++ implementación"
   echo "5: Java"
   read option
   if [ ! -z $option ]
@@ -106,8 +106,8 @@ function buscar(){
     case $option in
       1) mgrep LOCAL_MODULE | grep $text\$;;
       2) mgrep "$text";;
-      3) cgrep "$text";;
-      4) hgrep "$text";;
+      3) hgrep "$text";;
+      4) cgrep "$text";;
       5) jgrep "$text";;
     esac
   fi

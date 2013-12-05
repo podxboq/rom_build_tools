@@ -124,6 +124,15 @@ function gitUpstream(){
 
 function gitClone(){
   echo -e $GREEN"Cloning........."$COLOROFF
+  if [[ -d $mPath ]]; then
+    echo -e "Se va a clonar de nuevo el projecto $RED$mPath$COLOROFF, ¿desea borrarlo para reclonarlo (S/n)?"
+    read option
+    if [ -z $option ] || [ "$option" = "s" ]; then
+      rm -rf $mPath
+    else
+      return
+    fi
+  fi
   if $mTag; then
     $GIT clone $mRemoteURL$mName $mPath
     cd $mPath 
@@ -249,7 +258,7 @@ for d in $PROJECTLIST; do
   elif [ "$1" = push ]; then
       gitPush
   elif [ "$1" = sync ]; then
-    if [ ! -d $mPath ]; then
+    if [ ! -f $mPath/.git/config ]; then
       gitClone
     else
       isSameServer $d
@@ -275,7 +284,7 @@ for d in $PROJECTLIST; do
       fi
     fi
   elif [ "$1" = fullsync ]; then
-    if [ -d $mPath ]; then
+    if [ -f $mPath/.git/config ]; then
       gitPull
       gitUpstream
     else

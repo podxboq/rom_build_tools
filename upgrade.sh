@@ -31,14 +31,27 @@ cd $TOPDIR
 PROJECTLIST=`xmllint --xpath '//project/@path' $TOPDIR/$XMLFILE`
 OLDPROJECTLIST=`xmllint --xpath '//project/@path' $OLDXMLFILE`
 
-for d in $OLDPROJECTLIST; do
-  if ! [[ $PROJECTLIST =~ $d ]]; then
-    oldpath=`xmllint --xpath 'string(//project[@'$d']/@path)' $OLDXMLFILE`
-    echo -e "Se ha quitado la ruta $RED$oldpath$COLOROFF de la lista de proyectos."
+function safeRemoveDirectory(){
+  if [[ ! -z $1 ]] && [[ -d $1 ]]; then
+    echo -e "Se ha quitado la ruta $RED$1$COLOROFF de la lista de proyectos."
     echo "¿Quiere borrarlo (s/N)?"
     read option
     if [ "$option" = s ]; then
-      rm -rf $oldpath
+      rm -rf $1
     fi
   fi
+}
+
+for d in $OLDPROJECTLIST; do
+  if ! [[ $PROJECTLIST =~ $d ]]; then
+    oldpath=`xmllint --xpath 'string(//project[@'$d']/@path)' $OLDXMLFILE`
+    safeRemoveDirectory $oldpath
+  fi
+done
+
+#Borramos los projectos bloqueados
+PROJECTLIST=`xmllint --xpath '//project/@path' $TOPDIR/$MAINDIR/black.xml`
+for d in $PROJECTLIST; do
+  path=`xmllint --xpath 'string(//project[@'$d']/@path)' $TOPDIR/$XMLFILE`
+  safeRemoveDirectory $path
 done

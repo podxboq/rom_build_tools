@@ -54,11 +54,11 @@ function getBranch(){
     mBranch=`xmllint --xpath 'string(//remote[@name="'$mRemote'"]/@revision)' $REMOTEFILE`
   fi
   mTag=false
-  if [[ "$mBranch" =~ "refs/tags" ]]; then
-      mBranch=${mBranch#"refs/tags/"}
-      mTag=true
-    fi
   mBranch=${mBranch:=$DefBranch}
+  if [[ "$mBranch" =~ "refs/tags" ]]; then
+    mBranch=${mBranch#"refs/tags/"}
+    mTag=true
+  fi
 }
 
 function getUpstream(){
@@ -111,6 +111,18 @@ function gitPush(){
     $GIT push origin $mBranch
     cd $TOPDIR
   fi
+}
+
+function gitCheckout(){
+  cd $mPath
+  $GIT checkout -- .
+  if $mTag; then
+    $GIT fetch --tags
+    $GIT checkout $mBranch
+  else
+    $GIT checkout -b $mBranch origin/$mBranch
+  fi
+  cd $TOPDIR
 }
 
 function gitUpstream(){
@@ -221,7 +233,6 @@ function isBlackProject(){
 function setDefEnv(){
   DefRemote=`xmllint --xpath 'string(//default/@remote)' $REMOTEFILE`
   DefBranch=`xmllint --xpath 'string(//default/@revision)' $REMOTEFILE`
-  DefBranch=${DefBranch#"refs/heads/"}
 }
   
 setDefEnv
@@ -234,6 +245,9 @@ fi
 
 for d in $PROJECTLIST; do
   setEnv $d
+  if [ -z $mPath ]; then
+    continue
+  fi
   isBlackProject $mPath
   if [ $? -eq 0 ]; then
     continue
@@ -272,11 +286,10 @@ for d in $PROJECTLIST; do
       else
 	      isSameBranch $d
 	      if [ $? -eq 1 ]; then
-	        echo -e "Se ha cambiado la rama del proyecto $RED$mPath$COLOROFF, ¿desea borrarlo para clonarlo (S/n)?"
+	        echo -e "Se ha cambiado la rama del proyecto $RED$mPath$COLOROFF, ¿desea cambiarse (S/n)?"
 	        read option
 	        if [ -z $option ] || [ "$option" = "s" ]; then
-	          rm -rf $mPath
-	          gitClone
+	          gitCheckout
 	        fi
 	      else
 	        gitPull

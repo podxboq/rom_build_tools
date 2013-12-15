@@ -69,7 +69,7 @@ fi
 function compilar(){
   #borramos los objetos para forzar que se copie la ROM entera
   #rm -rf $OUT/recovery $OUT/root $OUT/system $OUT/kernel 2&> /dev/null
-  make -j${CORES} otapackage 2> $LOGFILE
+  time make -j${CORES} otapackage 2> $LOGFILE
   if [ "$?" -eq 0 ]; then
       msgOK "Compilación correcta"
   else

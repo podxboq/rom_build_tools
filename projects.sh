@@ -94,10 +94,6 @@ function gitPull(){
     if [ ! $mTag ]; then
       $GIT pull origin $mBranch
     fi
-    total_upstream_list=${#mUpstreamRemote[@]}
-    for ((a=1; a <= total_upstream_list ; a++)); do
-      $GIT fetch ${mUpstreamRemote[a]}
-    done
     cd $TOPDIR
   fi
 }
@@ -122,7 +118,7 @@ function gitCheckout(){
   cd $TOPDIR
 }
 
-function gitUpstream(){
+function gitMerge(){
   cd $mPath
   total_upstream_list=${#mUpstreamRemote[@]}
   for ((a=1; a <= total_upstream_list ; a++)); do
@@ -169,6 +165,33 @@ function gitStatus(){
   fi
   cd $TOPDIR
 }
+
+function gitSync(){
+  if [ ! -f $mPath/.git/config ]; then
+    gitClone
+  else
+    isSameServer $d
+    if [ $? -eq 1 ]; then
+      echo -e "Se ha cambiado el servidor del proyecto $RED$mPath$COLOROFF, ¿desea borrarlo para clonarlo (S/n)?"
+      read option
+      if [ -z $option ] || [ "$option" = "s" ]; then
+        rm -rf $mPath
+        gitClone
+      fi
+    else
+      isSameBranch $d
+      if [ $? -eq 1 ]; then
+        echo -e "Se ha cambiado la rama del proyecto $RED$mPath$COLOROFF, ¿desea cambiarse (S/n)?"
+        read option
+        if [ -z $option ] || [ "$option" = "s" ]; then
+          gitCheckout
+        fi
+      else
+        gitPull
+      fi
+    fi
+  fi
+}  
 
 function setEnv(){
   getPath $1
@@ -269,36 +292,9 @@ for d in $PROJECTLIST; do
   elif [ "$1" = push ]; then
       gitPush
   elif [ "$1" = sync ]; then
-    if [ ! -f $mPath/.git/config ]; then
-      gitClone
-    else
-      isSameServer $d
-      if [ $? -eq 1 ]; then
-        echo -e "Se ha cambiado el servidor del proyecto $RED$mPath$COLOROFF, ¿desea borrarlo para clonarlo (S/n)?"
-        read option
-        if [ -z $option ] || [ "$option" = "s" ]; then
-          rm -rf $mPath
-          gitClone
-        fi
-      else
-	      isSameBranch $d
-	      if [ $? -eq 1 ]; then
-	        echo -e "Se ha cambiado la rama del proyecto $RED$mPath$COLOROFF, ¿desea cambiarse (S/n)?"
-	        #read option
-	        #if [ -z $option ] || [ "$option" = "s" ]; then
-	          gitCheckout
-	        #fi
-	      else
-	        gitPull
-	      fi
-      fi
-    fi
+    gitSync
   elif [ "$1" = fullsync ]; then
-    if [ -f $mPath/.git/config ]; then
-      gitPull
-      gitUpstream
-    else
-      gitClone
-    fi
+    gitSync
+    gitMerge
   fi
 done

@@ -15,8 +15,6 @@
 
 #Inicializamos las variables
 SCRIPTDIR=`dirname $0`
-TOPDIR=`pwd`
-GIT=git
 MAINDIR=android
 
 if [[ "$1" =~ "sync" ]]; then

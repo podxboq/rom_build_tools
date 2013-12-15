@@ -91,10 +91,7 @@ function getUpstream(){
 function gitPull(){
   if [ ! -z $mPath ]; then
     cd $mPath
-    if $mTag; then
-      $GIT fetch --tags
-      $GIT checkout $mBranch
-    else
+    if [ ! $mTag ]; then
       $GIT pull origin $mBranch
     fi
     total_upstream_list=${#mUpstreamRemote[@]}
@@ -287,10 +284,10 @@ for d in $PROJECTLIST; do
 	      isSameBranch $d
 	      if [ $? -eq 1 ]; then
 	        echo -e "Se ha cambiado la rama del proyecto $RED$mPath$COLOROFF, ¿desea cambiarse (S/n)?"
-	        read option
-	        if [ -z $option ] || [ "$option" = "s" ]; then
+	        #read option
+	        #if [ -z $option ] || [ "$option" = "s" ]; then
 	          gitCheckout
-	        fi
+	        #fi
 	      else
 	        gitPull
 	      fi

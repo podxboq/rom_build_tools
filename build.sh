@@ -44,7 +44,8 @@ if [ "$BUILD" == "" ]; then
   BUILD=eng
 fi
 
-ROMDIR=$TOPDIR/../cache/roms/$DEVICE
+CACHEDIR=$TOPDIR/../cache
+ROMDIR=$CACHEDIR/roms/$DEVICE
 BUILDDIR=$ROMDIR/last_build
 RELEASEDIR=$ROMDIR/last_release
 PATCHDIR=$ROMDIR/last_patch
@@ -184,6 +185,7 @@ do
   echo "12: Buscar"
   echo "13: Ver fichero de errores"
   echo "14: Mandar rom al dispositivo"
+  echo "15: Backup"
   echo "99: salir"
 
   read option
@@ -231,6 +233,7 @@ do
     12) buscar;;
     13) cat $LOGFILE;;
     14) adb sideload $OUT/$PRODUCT_ROM_FILE.zip;;
+    15) echo adb backup -shared -apk -f $CACHEDIR/backups/$DEVICE/$DEVICE-`date -u +%Y%m%d`.ab 
   esac    
 done
   

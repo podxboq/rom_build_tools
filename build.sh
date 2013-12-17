@@ -171,6 +171,7 @@ do
   #inicializamos estados
   msgStatus "Compilando la rom del SuperTeam para el dispositivo $1"
   echo "Elige una opción:"
+  echo " 0: info"
   echo " 1: make"
   echo " 2: squisher"
   echo " 3: zip"
@@ -205,6 +206,7 @@ do
   fi
     
   case $option in
+    0) lunch "$ORG"_"$DEVICE"-"$BUILD";;
     1) compilar;;
     2) squishear;;
     3) zipear;;

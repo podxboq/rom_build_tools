@@ -25,10 +25,10 @@ fi
 
 if [ "$APKCERTS" = "" ];
 then
-	APKCERTS=$OUT/obj/PACKAGING/target_files_intermediates/$TARGET_PRODUCT-target_files-$TARGET_BUILD_VARIANT.$USER/META/apkcerts.txt
+	APKCERTS=$OUT/obj/PACKAGING/target_files_intermediates/$TARGET_PRODUCT-target_files-`date +%Y%m%d`/META/apkcerts.txt
 	if [ ! -f "$APKCERTS" ];
 	then
-		msgErr "No se encuentra la ruta para el fichero apkcerts.txt, configura la variable APKCERTS"
+		msgErr "No se encuentra la ruta $APKCERTS, configura la variable APKCERTS"
 		exit 1;
 	fi
 fi

@@ -110,6 +110,7 @@ while read line; do
 		then
 			chmod 755 $ORIG$file
 		fi
+		msgInfo $ORIG$file$comodin
 		adb push $ORIG$file$comodin $preDir$file
 		if [[ "$file" == "/build.prop" ]]
 		then

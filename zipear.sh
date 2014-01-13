@@ -30,7 +30,7 @@ cd $REPACKOTA
 [ -e $REPACK/update.zip ] && rm -f $REPACK/update.zip
 
 msgStatus "Comprimiendo ROM usando zip"
-time zip -rqy -9 $REPACK/update.zip . 
+time zip -rqy --symlinks -9 $REPACK/update.zip . 
 
 firmar.sh $REPACK/update.zip $ROMPACKAGE
 if [ "$?" -ne 0 ]; then

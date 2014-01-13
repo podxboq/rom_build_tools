@@ -8,7 +8,6 @@ MODS=$SCRIPTDIR/mods
 OTAPACKAGE=$OUT/$PRODUCT_ROM_FILE-ota.zip
 OPTICHARGER=$SCRIPTDIR/preopticharger.sh
 QUIET=-q
-DELETE_BINS="applypatch applypatch_static check_prereq recovery updater"
 squash_opts="-force-uid 1000 -force-gid 1000 -no-progress -noappend -no-exports -no-recovery"
 REPACK=$OUT/repack.d
 REPACKOTA=$REPACK/ota
@@ -48,7 +47,7 @@ msgInfo "Copiando ficheros comunes"
 
 msgInfo "Copiando ficheros específicos"
 [ -d $MODS/$ALIAS ] && cp -rf $MODS/$ALIAS/* $REPACKOTA/
-
+msgInfo "Ejecutando opticharger...."
 #Ejecuta opticharger sobre el resto de apks de la rom
 cd $REPACKOTA/system/app
 find ./ -name \*.apk | xargs --max-args=1 --max-procs=${CORES} $OPTICHARGER
@@ -60,10 +59,6 @@ sed -i \
   -e '/ro\.kernel\.android\.checkjni/d' \
   -e '/ro\.build\.date\.utc/s/.*/ro.build.date.utc=0/' \
   $REPACKOTA/system/build.prop
-
-# Eliminar binarios innecesarios
-cd $REPACKOTA/system/bin
-$ECHO $DELETE_BINS | xargs rm -f
 
 # No se necesita recovery (en caso de existir)
 rm -rf $REPACKOTA/recovery
